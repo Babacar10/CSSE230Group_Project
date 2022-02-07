@@ -1,3 +1,4 @@
+package Graph;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -5,7 +6,7 @@ public class Graph<T> {
 	private Hashtable<T, Node> nodes;
 
 	public Graph(){
-		nodes = new Hashtable<T, Node>();
+		nodes = new Hashtable<T, Node>();	
 	}
 	
 	
