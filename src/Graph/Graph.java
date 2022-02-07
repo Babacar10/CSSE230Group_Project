@@ -8,6 +8,7 @@ public class Graph<T> {
 		nodes = new Hashtable<T, Node>();
 	}
 	
+	
 	private class Node {
 		private T element;
 		private ArrayList<Edge> neighbors;
@@ -23,6 +24,7 @@ public class Graph<T> {
 		}
 		
 	}
+	
 	
 	private class Edge {
 		private Node otherNode;
