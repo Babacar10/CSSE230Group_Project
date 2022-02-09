@@ -34,18 +34,18 @@ public class Graph<T> {
 		
 		public void addEdge(T e, int tcost, int dcost) {
 			Node otherNode = nodes.get(e);
-			neighbors.add(new Edge(this, otherNode, tcost,dcost));
+			edges.add(new Edge(this, otherNode, tcost,dcost));
 		}
 		
-		public int timecost(T e) {
+		public int timeCost(T e) {
 			return 0;
 		}
 		
-		public int distancecost(T e) {
+		public int distanceCost(T e) {
 			return 0;
 		}
 		
-		public int competitioncost() {
+		public int competitionCost() {
 			return 0;
 		}
 	}
@@ -54,15 +54,15 @@ public class Graph<T> {
 	private class Edge {
 		private Node node1;
 		private Node node2;
-		private int timecost;
-		private int distancecost;
+		private int timeCost;
+		private int distanceCost;
 	
 		
 		public Edge(Node n1, Node n2, int c,int d){
 			node1 = n1;
 			node2 = n2;
-			timecost = c;
-			distancecost = d;
+			timeCost = c;
+			distanceCost = d;
 			
 		}
 	}
