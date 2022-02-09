@@ -24,5 +24,10 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/duffdl/Desktop/CSSE230/CSSE230Group_Project/lib/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/duffdl/Desktop/CSSE230/CSSE230Group_Project/lib/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/duffdl/Desktop/CSSE230/CSSE230Group_Project/lib/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/duffdl/Desktop/CSSE230/CSSE230Group_Project/lib/poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/duffdl/Desktop/CSSE230/CSSE230Group_Project/lib/xmlbeans-2.6.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

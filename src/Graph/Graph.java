@@ -3,38 +3,29 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class Graph<T> {
-	private Hashtable<T, Node> nodes;	
+	private Hashtable<Integer, Node> nodes;
 	
 	public Graph(){
-		nodes = new Hashtable<T, Node>();	
+		nodes = new Hashtable<Integer, Node>();	
 	}
 	
 	
 	private class Node {
-		private T id;
+		private int seed;		
 		private ArrayList<Edge> edges;
-		private int competitiveCost;
+		private String teamName;
 		
-		public Node(T e, int d){
-			id = e;
-			edges = new ArrayList<Edge>();
-			competitiveCost = d;
+		public Node(int seed, String teamName){
+			this.seed = seed;
+			this.edges = new ArrayList<Edge>();
+			this.teamName = teamName;
 		}
-		
-		public class Team {
-			private int x;
-			private int y;
-			private String teamName;
-			
-			public Team() {
-				
-			}
-		}
+
 		
 		
-		public void addEdge(T e, int tcost, int dcost) {
-			Node otherNode = nodes.get(e);
-			edges.add(new Edge(this, otherNode, tcost,dcost));
+		public void addEdge(int team2, int tcost, int dcost) {
+			Node otherNode = nodes.get(team2);
+			edges.add(new Edge(this, otherNode, tcost, dcost));
 		}
 		
 		public int timeCost(T e) {
@@ -46,7 +37,7 @@ public class Graph<T> {
 		}
 		
 		public int competitionCost() {
-			return 0;
+			return seed;
 		}
 	}
 	
@@ -67,14 +58,15 @@ public class Graph<T> {
 		}
 	}
 
-	public boolean addNode(T e, int c) {
-		nodes.put(e, new Node(e,c));
+	public boolean addNode(int seed, String teamName) {
+		nodes.put(seed, new Node(seed, teamName));
 		return true;
 	}
 	
-	public boolean addEdge(T e1, T e2, int tcost, int dcost) {
-		if (!nodes.containsKey(e1) || !nodes.containsKey(e2)) return false;
-		nodes.get(e1).addEdge(e2, tcost, dcost);
+	public boolean addEdge(int seed1, int seed2, int tcost, int dcost) {
+		if (!nodes.containsKey(seed1) || !nodes.containsKey(seed2)) return false;
+		nodes.get(seed1).addEdge(seed2, tcost, dcost);
+		nodes.get(seed2).addEdge(seed1, tcost, dcost);
 	    return true;
 	}
 

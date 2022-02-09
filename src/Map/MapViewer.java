@@ -17,11 +17,12 @@ public class MapViewer extends JFrame {
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
 		content.add(new ControlPanel(), BorderLayout.NORTH);
+		this.setVisible(true);
 
 	}
 
 	public static void main(String[] args) {
-		System.out.println("??!?!");
+		
 	}
 
 	
