@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -42,6 +43,7 @@ public class MapViewer extends JFrame {
 	JComboBox teamListDropdown1;
 	JComboBox teamListDropdown2;
 	String filename;
+	ControlPanel controlPanel;
 	
 	public MapViewer(String filename) throws IOException {
 		super("Map!!!");
@@ -50,7 +52,8 @@ public class MapViewer extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
-		content.add(new ControlPanel(), BorderLayout.NORTH);
+		controlPanel = new ControlPanel();
+		content.add(controlPanel, BorderLayout.NORTH);
 		this.setVisible(true);
 
 	}
@@ -90,7 +93,11 @@ public class MapViewer extends JFrame {
 				public void mousePressed(MouseEvent e) {
 					String team1 = String.valueOf(teamListDropdown1.getSelectedItem());
 					String team2 = String.valueOf(teamListDropdown2.getSelectedItem());
-					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2));					
+					String sortedBy = "none";
+					if (controlPanel.sortGroup.getSelection() != null) {
+						sortedBy = controlPanel.sortGroup.getSelection().getActionCommand();
+					}					
+					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy);					
 				}
 			});
 		}
@@ -115,9 +122,12 @@ public class MapViewer extends JFrame {
 		}
 	
 	class ControlPanel extends JPanel {
+		
+		public ButtonGroup sortGroup;
+		
 		public ControlPanel() throws IOException {
 			TitledBorder border = BorderFactory.createTitledBorder(
-					BorderFactory.createLoweredBevelBorder(), "Control Panel");
+					BorderFactory.createLoweredBevelBorder(), "NBA Roadmap");
 			border.setTitleJustification(TitledBorder.LEFT);
 			this.setBorder(border);
 			this.setLayout(new FlowLayout());
@@ -136,27 +146,34 @@ public class MapViewer extends JFrame {
 			teamListDropdown2.setRenderer(new MyComboBoxRenderer("END"));
 			teamListDropdown2.setSelectedIndex(-1);
 			this.add(teamListDropdown1);
+			JLabel toLabel = new JLabel("TO");
+			this.add(toLabel);
 			this.add(teamListDropdown2);
 			// End dropdowns
 			
 			// Add buttons
-			JButton goButton = new GoButton();
-			this.add(goButton);
+			JLabel sortLabel = new JLabel("Sort By:");
+			this.add(sortLabel);			
 			JRadioButton sortByTimeButton = new JRadioButton("Time");
 			JRadioButton sortByDistanceButton = new JRadioButton("Distance");
 			JRadioButton sortByCompetitionButton = new JRadioButton("Competition");
-			ButtonGroup sortGroup = new ButtonGroup();
+			sortByCompetitionButton.setActionCommand("comp");
+			sortByDistanceButton.setActionCommand("dist");
+			sortByTimeButton.setActionCommand("time");
+			this.sortGroup = new ButtonGroup();
+			Box sortBox = Box.createVerticalBox();
+			sortBox.add(sortByTimeButton);
+			sortBox.add(sortByDistanceButton);
+			sortBox.add(sortByCompetitionButton);			
 			sortGroup.add(sortByCompetitionButton);
 			sortGroup.add(sortByTimeButton);
 			sortGroup.add(sortByDistanceButton);
-			this.add(sortByCompetitionButton);
-			this.add(sortByTimeButton);
-			this.add(sortByDistanceButton);
-//		    group.add(birdButton);
-//		    group.add(catButton);
-//		    group.add(dogButton);
-//		    group.add(rabbitButton);
-//		    group.add(pigButton);
+//			this.add(sortByCompetitionButton);
+//			this.add(sortByTimeButton);
+//			this.add(sortByDistanceButton);
+			this.add(sortBox);
+			JButton goButton = new GoButton();
+			this.add(goButton);
 
 		}
 	}
