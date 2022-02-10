@@ -3,6 +3,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -16,9 +17,12 @@ import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -48,7 +52,7 @@ public class MapViewer extends JFrame {
 	public MapViewer(String filename) throws IOException {
 		super("Map!!!");
 		this.filename = filename;
-		this.setSize(800, 500);
+		this.setSize(1000, 750);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
@@ -96,8 +100,16 @@ public class MapViewer extends JFrame {
 					String sortedBy = "none";
 					if (controlPanel.sortGroup.getSelection() != null) {
 						sortedBy = controlPanel.sortGroup.getSelection().getActionCommand();
-					}					
-					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy);					
+					}		
+					
+					ArrayList<String> showing = new ArrayList<String>();
+					
+					for (JCheckBox cbox : controlPanel.checkBoxes) {
+						if (cbox.isSelected()) {
+							showing.add(cbox.getActionCommand());
+						}
+					}
+					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());					
 				}
 			});
 		}
@@ -124,6 +136,7 @@ public class MapViewer extends JFrame {
 	class ControlPanel extends JPanel {
 		
 		public ButtonGroup sortGroup;
+		public ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
 		
 		public ControlPanel() throws IOException {
 			TitledBorder border = BorderFactory.createTitledBorder(
@@ -151,8 +164,9 @@ public class MapViewer extends JFrame {
 			this.add(teamListDropdown2);
 			// End dropdowns
 			
-			// Add buttons
+			// Add sort buttons
 			JLabel sortLabel = new JLabel("Sort By:");
+			sortLabel.setFont(new Font("Serif", Font.PLAIN, 18));
 			this.add(sortLabel);			
 			JRadioButton sortByTimeButton = new JRadioButton("Time");
 			JRadioButton sortByDistanceButton = new JRadioButton("Distance");
@@ -162,18 +176,61 @@ public class MapViewer extends JFrame {
 			sortByTimeButton.setActionCommand("time");
 			this.sortGroup = new ButtonGroup();
 			Box sortBox = Box.createVerticalBox();
+			sortBox.add(sortLabel);
 			sortBox.add(sortByTimeButton);
 			sortBox.add(sortByDistanceButton);
 			sortBox.add(sortByCompetitionButton);			
 			sortGroup.add(sortByCompetitionButton);
 			sortGroup.add(sortByTimeButton);
 			sortGroup.add(sortByDistanceButton);
-//			this.add(sortByCompetitionButton);
-//			this.add(sortByTimeButton);
-//			this.add(sortByDistanceButton);
 			this.add(sortBox);
+			// End sort buttons
+			
+			// Add show buttons			
+			JLabel showLabel = new JLabel("Show:");
+			showLabel.setFont(new Font("Serif", Font.PLAIN, 18));
+			this.add(showLabel);			
+			JCheckBox showTimeButton = new JCheckBox("Time");
+			JCheckBox showDistanceButton = new JCheckBox("Distance");
+			JCheckBox showRankButton = new JCheckBox("Rank");
+			this.checkBoxes.add(showTimeButton);
+			this.checkBoxes.add(showDistanceButton);
+			this.checkBoxes.add(showRankButton);
+			showRankButton.setActionCommand("showRank");
+			showDistanceButton.setActionCommand("showDist");
+			showTimeButton.setActionCommand("showTime");
+			Box showBox = Box.createVerticalBox();
+			showBox.add(showLabel);
+			showBox.add(showTimeButton);
+			showBox.add(showDistanceButton);
+			showBox.add(showRankButton);			
+			this.add(showBox);
+			// End show buttons
+			
+			// Add results panel
+			JPanel resultsPanel = new JPanel();
+			JLabel timeTotal = new JLabel("Time: 5hr 36min");	
+			timeTotal.setFont(new Font("Serif", Font.PLAIN, 18));			
+			Box boxTwo = Box.createVerticalBox();
+			boxTwo.add(timeTotal);
+			JLabel distTotal = new JLabel("Distance: 372mi");
+			distTotal.setFont(new Font("Serif", Font.PLAIN, 18));
+			boxTwo.add(distTotal);
+			JLabel seedAvg = new JLabel("Avg. Rank: 13.4");
+			seedAvg.setFont(new Font("Serif", Font.PLAIN, 18));
+			boxTwo.add(seedAvg);				
+			resultsPanel.add(boxTwo);
+			// End results panel
+			
+			this.add(resultsPanel);
+			// Add GO button
 			JButton goButton = new GoButton();
+			
 			this.add(goButton);
+			
+			// End GO button
+			
+			
 
 		}
 	}
