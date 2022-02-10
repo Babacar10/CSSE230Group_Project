@@ -17,10 +17,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class MapComponent {
 	
+	
+	
 	public static void addAllNodes(Graph graph) throws IOException{
 		FileInputStream teams_seeds = null;
 		XSSFWorkbook wb = null;  
-		ArrayList<String> teamNames = new ArrayList<String>();
+		
 		ArrayList<Integer> seeds = new ArrayList<Integer>();
 		try {
 			teams_seeds = new FileInputStream(new File("src/Teams-Seeds.xlsx"));
@@ -28,7 +30,7 @@ public class MapComponent {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}  
-		
+		ArrayList<String> teamNames = new ArrayList<String>();
 		//creating a Sheet object to retrieve the object  
 		XSSFSheet sheet = wb.getSheetAt(0);  
 		//evaluating cell type   
@@ -81,12 +83,12 @@ public class MapComponent {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		MapViewer mv = new MapViewer();
+		
 		Graph graph = new Graph(); 
 		addAllNodes(graph);
 		addAllEdges(graph);
-		
-		
+		MapViewer mv = new MapViewer("src/Teams-Seeds.xlsx");
+//		mv.addTeamsAndSeeds();
 		
 		
 		
