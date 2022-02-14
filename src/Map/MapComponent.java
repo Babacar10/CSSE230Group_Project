@@ -25,7 +25,7 @@ public class MapComponent {
 		
 		ArrayList<Integer> seeds = new ArrayList<Integer>();
 		try {
-			teams_seeds = new FileInputStream(new File("src/Teams-Seeds.xlsx"));
+			teams_seeds = new FileInputStream(new File("src/team-seed-x-y.xlsx"));
 			wb = new XSSFWorkbook(teams_seeds);   
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -37,23 +37,9 @@ public class MapComponent {
 		FormulaEvaluator formulaEvaluator=wb.getCreationHelper().createFormulaEvaluator();  
 		for(Row row: sheet)     //iteration over row using for each loop  
 		{  
-		for(Cell cell: row)    //iteration over cell using for each loop  
-		{  
-		switch(formulaEvaluator.evaluateInCell(cell).getCellType())  
-		{  
-		case Cell.CELL_TYPE_NUMERIC: // if the cell's contents are a numeric
-			seeds.add((int)cell.getNumericCellValue());
-		break;  
-		case Cell.CELL_TYPE_STRING: // if the cell's contents are a string
-			teamNames.add(cell.getStringCellValue());
-		break;  
+			System.out.println("Name: "+row.getCell(0).getStringCellValue() +" , Seed: " + (int)row.getCell(1).getNumericCellValue());
+			graph.addNode((int)row.getCell(1).getNumericCellValue(), row.getCell(0).getStringCellValue(), (int)row.getCell(2).getNumericCellValue(), (int)row.getCell(3).getNumericCellValue());
 		}  
-		}  
-		}  
-		// Adding all nodes
-		for (int i = 0; i < seeds.size(); i++) {
-			graph.addNode(seeds.get(i), teamNames.get(i));
-		}
 	}
 	
 	public static void addAllEdges(Graph graph) throws IOException{
@@ -87,7 +73,7 @@ public class MapComponent {
 		Graph graph = new Graph(); 
 		addAllNodes(graph);
 		addAllEdges(graph);
-		MapViewer mv = new MapViewer("src/Teams-Seeds.xlsx");
+		MapViewer mv = new MapViewer("src/team-seed-x-y.xlsx", graph);
 //		mv.addTeamsAndSeeds();
 		
 		

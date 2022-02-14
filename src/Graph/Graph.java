@@ -9,18 +9,34 @@ public class Graph<T> {
 		nodes = new Hashtable<Integer, Node>();	
 	}
 	
+	public Hashtable<Integer, Node> getNodes() {
+		return nodes;
+	}
 	
-	private class Node {
+	
+	public class Node {
 		private int seed;		
 		private ArrayList<Edge> edges;
 		private String teamName;
+		private int x;
+		private int y;
 		
-		public Node(int seed, String teamName){
+		
+		public Node(int seed, String teamName, int x, int y){
 			this.seed = seed;
 			this.edges = new ArrayList<Edge>();
 			this.teamName = teamName;
+			this.x = x;
+			this.y = y;
 		}
-
+		
+		public int getX() {
+			return this.x;
+		}
+		public int getY() {
+			return this.y;
+		}
+		
 		
 		
 		public void addEdge(int team2, int tcost, int dcost) {
@@ -58,8 +74,8 @@ public class Graph<T> {
 		}
 	}
 
-	public boolean addNode(int seed, String teamName) {
-		nodes.put(seed, new Node(seed, teamName));
+	public boolean addNode(int seed, String teamName, int x, int y) {
+		nodes.put(seed, new Node(seed, teamName, x, y));
 		return true;
 	}
 	

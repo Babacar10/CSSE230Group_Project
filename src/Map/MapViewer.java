@@ -1,11 +1,18 @@
 package Map;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,12 +20,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -39,6 +48,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import Graph.Graph;
+import Graph.Graph.Node;
+
 
 
 public class MapViewer extends JFrame {
@@ -47,10 +59,15 @@ public class MapViewer extends JFrame {
 	JComboBox teamListDropdown1;
 	JComboBox teamListDropdown2;
 	String filename;
+	Graph graph;
 	ControlPanel controlPanel;
+	JPanel mapPanel;
+	ArrayList<Line2D> lines = new ArrayList<Line2D>();
 	
-	public MapViewer(String filename) throws IOException {
+	
+	public MapViewer(String filename, Graph graph) throws IOException {
 		super("Map!!!");
+		this.graph = graph;
 		this.filename = filename;
 		this.setSize(1000, 750);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,9 +75,31 @@ public class MapViewer extends JFrame {
 		content.setLayout(new BorderLayout());
 		controlPanel = new ControlPanel();
 		content.add(controlPanel, BorderLayout.NORTH);
+		mapPanel = new JPanel();
+		ImageIcon img = new ImageIcon("src/Map/mapimg.png");
+		Image image = img.getImage();
+		Image newimg = image.getScaledInstance(1000,  575,  java.awt.Image.SCALE_SMOOTH);
+		img = new ImageIcon(newimg); 
+		mapPanel.add(new JLabel(img));
+		this.add(mapPanel);
+//		this.add(new JLabel("hello"));
+//		this.pack();
+		mapPanel.setSize(new Dimension(100, 100));
+		mapPanel.repaint();
+		this.repaint();
+		this.setResizable(false);
 		this.setVisible(true);
-
+	
+		
+	
 	}
+	
+	
+	
+	
+	
+	
+	
 	
 	public void addTeamsAndSeeds() throws IOException {
 		FileInputStream teams_seeds = null;
@@ -89,6 +128,28 @@ public class MapViewer extends JFrame {
 		
 	}
 	
+	public void drawConnectingLine(String team1, String team2) {
+		Hashtable<Integer, Node> nodes = graph.getNodes();
+		int x1 = nodes.get(teamList.get(team1)).getX();
+		int x2 = nodes.get(teamList.get(team2)).getX();
+		int y1 = nodes.get(teamList.get(team1)).getY();
+		int y2 = nodes.get(teamList.get(team2)).getY();
+		Line2D line = new Line2D.Float(x1, y1, x2, y2);
+		lines.add(line);
+		this.repaint();
+		System.out.println("line added");
+	}
+	
+	public void paint(Graphics gp) {
+		super.paint(gp);
+		Graphics2D graphics = (Graphics2D) gp;
+		Line2D line = new Line2D.Float(0, 0, 150, 220);
+	    graphics.draw(line);
+	    for (Line2D eachLine : lines) {
+	    	graphics.draw(eachLine);
+	    }
+	}
+	
 	class GoButton extends JButton {
 		public GoButton() {
 			super("GO");
@@ -97,6 +158,7 @@ public class MapViewer extends JFrame {
 				public void mousePressed(MouseEvent e) {
 					String team1 = String.valueOf(teamListDropdown1.getSelectedItem());
 					String team2 = String.valueOf(teamListDropdown2.getSelectedItem());
+					drawConnectingLine(team1, team2);
 					String sortedBy = "none";
 					if (controlPanel.sortGroup.getSelection() != null) {
 						sortedBy = controlPanel.sortGroup.getSelection().getActionCommand();
@@ -109,7 +171,8 @@ public class MapViewer extends JFrame {
 							showing.add(cbox.getActionCommand());
 						}
 					}
-					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());					
+					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());
+					repaint();
 				}
 			});
 		}
