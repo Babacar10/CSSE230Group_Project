@@ -1,4 +1,5 @@
 package Map;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -9,6 +10,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -143,11 +145,44 @@ public class MapViewer extends JFrame {
 	public void paint(Graphics gp) {
 		super.paint(gp);
 		Graphics2D graphics = (Graphics2D) gp;
-		Line2D line = new Line2D.Float(0, 0, 150, 220);
-	    graphics.draw(line);
+//		Line2D line = new Line2D.Float(0, 0, 150, 220);
+//	    graphics.draw(line);
 	    for (Line2D eachLine : lines) {
-	    	graphics.draw(eachLine);
+	    	graphics.setColor(Color.YELLOW);
+	    	float[] dashingPattern = {5f, 5f};
+	    	Stroke stroke3 = new BasicStroke(4f, BasicStroke.CAP_ROUND,
+	    	        BasicStroke.JOIN_ROUND, 2.0f, null, 0.0f);
+	    	graphics.setStroke(stroke3);
+	    	
+//	    	Draw Arrowed Line
+	    	drawArrowLine(gp, (int)eachLine.getX1(), (int)eachLine.getY1(), (int)eachLine.getX2(), (int)eachLine.getY2(), 10, 20);
+	    	
+	    	
+	    	
+	    	// Draw Normal line
+//	    	graphics.draw(eachLine);
 	    }
+	}
+	
+	private void drawArrowLine(Graphics g, int x1, int y1, int x2, int y2, int d, int h) {
+	    int dx = x2 - x1, dy = y2 - y1;
+	    double D = Math.sqrt(dx*dx + dy*dy);
+	    double xm = D - d, xn = xm, ym = h, yn = -h, x;
+	    double sin = dy / D, cos = dx / D;
+
+	    x = xm*cos - ym*sin + x1;
+	    ym = xm*sin + ym*cos + y1;
+	    xm = x;
+
+	    x = xn*cos - yn*sin + x1;
+	    yn = xn*sin + yn*cos + y1;
+	    xn = x;
+
+	    int[] xpoints = {x2, (int) xm, (int) xn};
+	    int[] ypoints = {y2, (int) ym, (int) yn};
+
+	    g.drawLine(x1, y1, x2, y2);
+	    g.fillPolygon(xpoints, ypoints, 3);
 	}
 	
 	class GoButton extends JButton {
