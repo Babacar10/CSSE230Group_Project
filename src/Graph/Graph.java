@@ -34,7 +34,7 @@ public class Graph<T> {
 		
 		public void addEdge(T e, int tcost, int dcost) {
 			Node otherNode = nodes.get(e);
-			edges.add(new Edge(this, otherNode, tcost,dcost));
+			edges.add(new Edge(this, otherNode, tcost, dcost));
 		}
 		
 		public int timeCost(T e) {
