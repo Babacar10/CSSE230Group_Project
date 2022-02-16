@@ -98,11 +98,6 @@ public class MapViewer extends JFrame {
 	
 	
 	
-	
-	
-	
-	
-	
 	public void addTeamsAndSeeds() throws IOException {
 		FileInputStream teams_seeds = null;
 		XSSFWorkbook wb = null;  
@@ -131,15 +126,25 @@ public class MapViewer extends JFrame {
 	}
 	
 	public void drawConnectingLine(String team1, String team2) {
-		Hashtable<Integer, Node> nodes = graph.getNodes();
-		int x1 = nodes.get(teamList.get(team1)).getX();
-		int x2 = nodes.get(teamList.get(team2)).getX();
-		int y1 = nodes.get(teamList.get(team1)).getY();
-		int y2 = nodes.get(teamList.get(team2)).getY();
-		Line2D line = new Line2D.Float(x1, y1, x2, y2);
-		lines.add(line);
-		this.repaint();
-		System.out.println("line added");
+		try {
+			Hashtable<Integer, Node> nodes = graph.getNodes();
+			int x1 = nodes.get(teamList.get(team1)).getX();
+			int x2 = nodes.get(teamList.get(team2)).getX();
+			int y1 = nodes.get(teamList.get(team1)).getY();
+			int y2 = nodes.get(teamList.get(team2)).getY();
+			Line2D line = new Line2D.Float(x1, y1, x2, y2);
+			lines.add(line);
+			this.repaint();
+			System.out.println("line added");
+		}catch (NullPointerException n){
+			System.out.println("SELECT TWO TEAMS");
+		}
+		
+	}
+	
+	public void drawPath(ArrayList<Node> nodes) {
+			
+		
 	}
 	
 	public void paint(Graphics gp) {
@@ -162,6 +167,7 @@ public class MapViewer extends JFrame {
 	    	// Draw Normal line
 //	    	graphics.draw(eachLine);
 	    }
+		
 	}
 	
 	private void drawArrowLine(Graphics g, int x1, int y1, int x2, int y2, int d, int h) {

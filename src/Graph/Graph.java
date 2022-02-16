@@ -19,7 +19,7 @@ public class Graph<T> {
 	public class Node {
 		private int seed;		
 		private ArrayList<Edge> edges;
-		private String teamName;
+		public String teamName;
 		private int x;
 		private int y;
 		
@@ -54,22 +54,12 @@ public class Graph<T> {
 		
 		public ArrayList<Node> getNeighbors() {
 			ArrayList<Node> neighbors = new ArrayList<Node>(edges.size());
-			for (Edge e: edges) neighbors.add(e.endNode);
+			for (Edge e: edges) neighbors.add(e.node2);
 			return neighbors;
 		}
 		
 		public int timeCost(T e) {
 			return 0;
-		}
-		
-		public int distanceCost(Node n) {
-			for (Edge e: edges) {
-				//Potential Comparison Problem
-				if (e.endNode == n) {
-					return e.distanceCost;
-				}
-			}
-			return -1;
 		}
 		
 		public int competitionCost() {
@@ -78,15 +68,15 @@ public class Graph<T> {
 	}
 	
 	private class Edge {
-		private Node startNode;
-		private Node endNode;
+		private Node node1;
+		private Node node2;
 		private int timeCost;
 		private int distanceCost;
 	
 		
 		public Edge(Node n1, Node n2, int c, int d){
-			startNode = n1;
-			endNode = n2;
+			node1= n1;
+			node2 = n2;
 			timeCost = c;
 			distanceCost = d;
 			
@@ -104,6 +94,59 @@ public class Graph<T> {
 		nodes.get(seed2).addEdge(seed1, tcost, dcost);
 	    return true;
 	}
-	
+
+	public ArrayList<Node> shortestPath(int Cost, int sourceSeed, int targetSeed) {
+		// 0-distance 1-time 2-competitive
+		// connects from target to source
+		ArrayList<Node> Visited = new ArrayList<Node>();
+		ArrayList<Node> UnVisited = new ArrayList<Node>(34);
+		int[] shortestDistance = new int[35];
+		int[] previousVertex = new int[35];
+		
+		for(int i = 1; i<35;i++) {
+			Node next = nodes.get(i);
+			UnVisited.add(next);
+			shortestDistance[i] = Integer.MAX_VALUE;
+			previousVertex[i] = Integer.MAX_VALUE;
+		}
+		
+		shortestDistance[sourceSeed] = 0;
+		
+		
+		while(!UnVisited.isEmpty()) {
+			Node current_vertex = UnVisited.get(0);
+			for(int i = 0; i<UnVisited.size();i++) {
+				if(shortestDistance[UnVisited.get(i).seed]<shortestDistance[current_vertex.seed]) {
+					current_vertex = UnVisited.get(i);
+				}
+			}
 			
+			for(int i=0; i<current_vertex.edges.size(); i++) {
+				int cost = Integer.MAX_VALUE;
+				Node other_vertex = current_vertex.edges.get(i).node2;
+				if(Cost==0) {
+				cost = current_vertex.edges.get(i).distanceCost;}
+				if(shortestDistance[other_vertex.seed]>(shortestDistance[current_vertex.seed] + cost)) {
+					shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost);
+					previousVertex[other_vertex.seed] = current_vertex.seed;
+				}
+				UnVisited.remove(current_vertex);
+				Visited.add(current_vertex);
+				
+			}
+			
+			
+		}
+		
+		
+		ArrayList<Node> returns = new ArrayList<Node>();
+		int current = targetSeed;
+		while(current!=sourceSeed) {
+			returns.add(nodes.get(previousVertex[current]));
+			current = previousVertex[current];
+		}
+		//returns.add(nodes.get(sourceSeed));
+		return returns;
+		
+	}
 }
