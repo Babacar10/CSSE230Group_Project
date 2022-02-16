@@ -16,6 +16,7 @@
 	<classpathentry excluding="main/java/|test/java/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
 		<attributes>
+			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -24,5 +25,15 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/whiteqd/CSSE 230/CSSE230Group_Project/lib/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/whiteqd/CSSE 230/CSSE230Group_Project/lib/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/whiteqd/CSSE 230/CSSE230Group_Project/lib/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/whiteqd/CSSE 230/CSSE230Group_Project/lib/poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/whiteqd/CSSE 230/CSSE230Group_Project/lib/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="lib/xmlbeans-2.6.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
