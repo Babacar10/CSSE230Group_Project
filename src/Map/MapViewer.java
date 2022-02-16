@@ -51,6 +51,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import Graph.Graph;
+import Graph.Graph.Edge;
 import Graph.Graph.Node;
 
 
@@ -65,6 +66,9 @@ public class MapViewer extends JFrame {
 	ControlPanel controlPanel;
 	JPanel mapPanel;
 	ArrayList<Line2D> lines = new ArrayList<Line2D>();
+	JLabel timeTotal = new JLabel("Time: 5hr 36min");			
+	JLabel distTotal = new JLabel("");
+	JLabel seedAvg = new JLabel("");
 	
 	
 	public MapViewer(String filename, Graph graph) throws IOException {
@@ -201,20 +205,48 @@ public class MapViewer extends JFrame {
 					if (controlPanel.sortGroup.getSelection() != null) {
 						sortedBy = controlPanel.sortGroup.getSelection().getActionCommand();
 					}	
+					int sortVal = 0;
 					if (sortedBy != "none") {
-						int sortVal = Integer.parseInt(sortedBy);
+						sortVal = Integer.parseInt(sortedBy);
 					}
 					
 					String team1 = String.valueOf(teamListDropdown1.getSelectedItem());
 					String team2 = String.valueOf(teamListDropdown2.getSelectedItem());
-//					drawConnectingLine(team1, team2);
+
+					if (teamList.containsKey(team1) && teamList.containsKey(team2) && team1 != team2) {
+					// FIXME: change from 0 to sortVal 
 					ArrayList<Node> shortestPath = graph.shortestPath(0, teamList.get(team1), teamList.get(team2));
+					System.out.println("hi");
 					lines = new ArrayList<Line2D>();
+					int totalDistance = 0;
+					int totalSeed = 0;
+					int totalTime = 0;					
+					totalSeed += shortestPath.get(0).seed + teamList.get(team2);
+					ArrayList<Edge> lastEdges = shortestPath.get(0).edges;
+					for (Edge edge : lastEdges) {
+						System.out.println("node 1: "+ edge.node1.teamName + " node 2: " + edge.node2.teamName);
+						if (edge.node1.seed == shortestPath.get(0).seed && edge.node2.seed == teamList.get(team2) || edge.node1.seed == teamList.get(team2) && edge.node2.seed == shortestPath.get(0).seed ) {
+							totalDistance += edge.distanceCost;
+							totalTime += edge.timeCost;							
+						}
+					}
+					System.out.println("hi");
 					for (int i  = 0; i < shortestPath.size()-1; i ++) {
 						drawConnectingLine(shortestPath.get(shortestPath.size()-i-1).teamName, shortestPath.get(shortestPath.size()-i-2).teamName);
-					}
-					drawConnectingLine(shortestPath.get(0).teamName, team2);
+						totalSeed += shortestPath.get(shortestPath.size()-i-1).seed;
+						ArrayList<Edge> edges = shortestPath.get(shortestPath.size()-i-1).edges;
+						for (Edge edge : edges) {
+							if (edge.node1 == shortestPath.get(shortestPath.size()-i-1) && edge.node2 == shortestPath.get(shortestPath.size()-i-2) || edge.node1 == shortestPath.get(shortestPath.size()-i-2) && edge.node2 == shortestPath.get(shortestPath.size()-i-1) ) {
+								totalDistance += edge.distanceCost;
+								totalTime += edge.timeCost;
+							}
+						}
 						
+					}
+					
+					System.out.println("hi");
+					drawConnectingLine(shortestPath.get(0).teamName, team2);
+					
 					
 					ArrayList<String> showing = new ArrayList<String>();
 					
@@ -223,8 +255,27 @@ public class MapViewer extends JFrame {
 							showing.add(cbox.getActionCommand());
 						}
 					}
+					if (showing.contains("showTime" )) {
+						timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)+"min"));
+					}else {
+						timeTotal.setText(""); 
+					}
+					if (showing.contains("showDist")) {
+						distTotal.setText("Distance: " + totalDistance + " miles");
+					}else {
+						distTotal.setText("");
+					}
+					if (showing.contains("showRank")) {
+						seedAvg.setText("Avg Rank: "+ totalSeed / (shortestPath.size()+1));
+					}else {
+						seedAvg.setText("");
+					}
+					
 					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());
 					repaint();
+				}else {
+					System.out.println("Please pick two teams!");
+				}
 				}
 			});
 		}
@@ -284,6 +335,7 @@ public class MapViewer extends JFrame {
 			sortLabel.setFont(new Font("Serif", Font.PLAIN, 18));
 			this.add(sortLabel);			
 			JRadioButton sortByTimeButton = new JRadioButton("Time");
+			sortByTimeButton.setSelected(true);
 			JRadioButton sortByDistanceButton = new JRadioButton("Distance");
 			JRadioButton sortByCompetitionButton = new JRadioButton("Competition");
 			sortByCompetitionButton.setActionCommand("2");
@@ -305,7 +357,7 @@ public class MapViewer extends JFrame {
 			JLabel showLabel = new JLabel("Show:");
 			showLabel.setFont(new Font("Serif", Font.PLAIN, 18));
 			this.add(showLabel);			
-			JCheckBox showTimeButton = new JCheckBox("Time");
+			JCheckBox showTimeButton = new JCheckBox("Time");			
 			JCheckBox showDistanceButton = new JCheckBox("Distance");
 			JCheckBox showRankButton = new JCheckBox("Rank");
 			this.checkBoxes.add(showTimeButton);
@@ -324,14 +376,14 @@ public class MapViewer extends JFrame {
 			
 			// Add results panel
 			JPanel resultsPanel = new JPanel();
-			JLabel timeTotal = new JLabel("Time: 5hr 36min");	
+			timeTotal = new JLabel("");	
 			timeTotal.setFont(new Font("Serif", Font.PLAIN, 18));			
 			Box boxTwo = Box.createVerticalBox();
 			boxTwo.add(timeTotal);
-			JLabel distTotal = new JLabel("Distance: 372mi");
+			distTotal = new JLabel("");
 			distTotal.setFont(new Font("Serif", Font.PLAIN, 18));
 			boxTwo.add(distTotal);
-			JLabel seedAvg = new JLabel("Avg. Rank: 13.4");
+			seedAvg = new JLabel("");
 			seedAvg.setFont(new Font("Serif", Font.PLAIN, 18));
 			boxTwo.add(seedAvg);				
 			resultsPanel.add(boxTwo);

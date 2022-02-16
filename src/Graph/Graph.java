@@ -17,8 +17,8 @@ public class Graph<T> {
 	}
 	
 	public class Node {
-		private int seed;		
-		private ArrayList<Edge> edges;
+		public int seed;		
+		public ArrayList<Edge> edges;
 		public String teamName;
 		private int x;
 		private int y;
@@ -67,11 +67,11 @@ public class Graph<T> {
 		}
 	}
 	
-	private class Edge {
-		private Node node1;
-		private Node node2;
-		private int timeCost;
-		private int distanceCost;
+	public class Edge {
+		public Node node1;
+		public Node node2;
+		public int timeCost;
+		public int distanceCost;
 	
 		
 		public Edge(Node n1, Node n2, int c, int d){
