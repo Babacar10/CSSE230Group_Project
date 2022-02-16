@@ -16,55 +16,6 @@ public class Graph<T> {
 		return nodes;
 	}
 	
-	public LinkedList<Node> A_Star(Node start, Node goal) {
-		PriorityQueue<APath> openSet = new PriorityQueue<APath>();
-		LinkedList<APath> closedSet = new LinkedList<APath>();
-		
-		openSet.add(new APath(start, goal));
-		
-		while (!openSet.isEmpty()) {
-			APath current = openSet.poll();
-			
-			//Potential Comparison Problem
-			if (current.getCurrent() == goal) {
-				current.addToPath(goal);
-				return current.path;
-			}
-			
-			for (Node neighbor: current.getCurrent().getNeighbors()) {
-				APath successor = new APath(neighbor, current);
-				boolean add = true;
-				
-				Iterator<APath> i = openSet.iterator();
-				while (i.hasNext()) {
-					//Potential Comparison Problem
-					APath predecessor = i.next();
-					if (predecessor.getCurrent() == successor.getCurrent() && predecessor.compareTo(successor) < 0) {
-						add = false;
-						break;
-					}
-				}
-				
-				for (int j = 0; j < closedSet.size(); j++) {
-					//Potential Comparison Problem
-					if (closedSet.get(j).getCurrent() == successor.getCurrent() && closedSet.get(j).compareTo(successor) < 0) {
-						add = false;
-						break;
-					}
-				}
-				
-				if (add) {
-					openSet.add(successor);
-				}
-			}
-			
-			closedSet.add(current);
-		}
-		
-		return null;
-	}
-	
-	
 	public class Node {
 		private int seed;		
 		private ArrayList<Edge> edges;
@@ -154,43 +105,5 @@ public class Graph<T> {
 	    return true;
 	}
 	
-	public class APath implements Comparable<APath> {		
-		private Node start;
-		private Node end;
-		private LinkedList<Node> path;
-		private int gScore;
-		
-		public APath(Node s, Node e) {
-			start = s;
-			end = e;
-			path = new LinkedList<Node>();
-			gScore = 0;
-			path.addFirst(start);
-		}
-		
-		public double getF() {
-			return gScore + start.distanceAsCrowFlies(end);
-		}
-
-		public APath(Node n, APath p) {
-			start = p.start;
-			end = p.end;
-			path = p.path;
-			gScore = p.gScore + p.path.getFirst().distanceCost(n);
-			path.addFirst(n);
-		}
-		
-		public Node getCurrent() {
-			return path.peek();
-		}
-		
-		public void addToPath(Node n) {
-			path.addFirst(n);
-		}
-		
-		public int compareTo(APath o) {
-			if (this.getF() == o.getF()) return 0;
-			return this.getF() < o.getF() ? -1 : 1;
-		}
-	}		
+			
 }
