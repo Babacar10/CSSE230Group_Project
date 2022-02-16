@@ -197,13 +197,24 @@ public class MapViewer extends JFrame {
 			this.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					String team1 = String.valueOf(teamListDropdown1.getSelectedItem());
-					String team2 = String.valueOf(teamListDropdown2.getSelectedItem());
-					drawConnectingLine(team1, team2);
 					String sortedBy = "none";
 					if (controlPanel.sortGroup.getSelection() != null) {
 						sortedBy = controlPanel.sortGroup.getSelection().getActionCommand();
-					}		
+					}	
+					if (sortedBy != "none") {
+						int sortVal = Integer.parseInt(sortedBy);
+					}
+					
+					String team1 = String.valueOf(teamListDropdown1.getSelectedItem());
+					String team2 = String.valueOf(teamListDropdown2.getSelectedItem());
+//					drawConnectingLine(team1, team2);
+					ArrayList<Node> shortestPath = graph.shortestPath(0, teamList.get(team1), teamList.get(team2));
+					lines = new ArrayList<Line2D>();
+					for (int i  = 0; i < shortestPath.size()-1; i ++) {
+						drawConnectingLine(shortestPath.get(shortestPath.size()-i-1).teamName, shortestPath.get(shortestPath.size()-i-2).teamName);
+					}
+					drawConnectingLine(shortestPath.get(0).teamName, team2);
+						
 					
 					ArrayList<String> showing = new ArrayList<String>();
 					
@@ -275,9 +286,9 @@ public class MapViewer extends JFrame {
 			JRadioButton sortByTimeButton = new JRadioButton("Time");
 			JRadioButton sortByDistanceButton = new JRadioButton("Distance");
 			JRadioButton sortByCompetitionButton = new JRadioButton("Competition");
-			sortByCompetitionButton.setActionCommand("comp");
-			sortByDistanceButton.setActionCommand("dist");
-			sortByTimeButton.setActionCommand("time");
+			sortByCompetitionButton.setActionCommand("2");
+			sortByDistanceButton.setActionCommand("0");
+			sortByTimeButton.setActionCommand("1");
 			this.sortGroup = new ButtonGroup();
 			Box sortBox = Box.createVerticalBox();
 			sortBox.add(sortLabel);

@@ -123,8 +123,7 @@ public class Graph<T> {
 				UnVisited.remove(current_vertex);
 				Visited.add(current_vertex);
 				
-			}
-			
+			}			
 			
 		}
 		
