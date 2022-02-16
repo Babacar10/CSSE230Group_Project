@@ -17,7 +17,7 @@ public class Graph<T> {
 	public class Node {
 		private int seed;		
 		private ArrayList<Edge> edges;
-		private String teamName;
+		public String teamName;
 		private int x;
 		private int y;
 		
