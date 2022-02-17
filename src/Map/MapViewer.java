@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,10 +20,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -39,8 +42,13 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.JSplitPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
@@ -51,6 +59,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import Graph.Graph;
+import Graph.Graph.Edge;
 import Graph.Graph.Node;
 
 
@@ -65,24 +74,49 @@ public class MapViewer extends JFrame {
 	ControlPanel controlPanel;
 	JPanel mapPanel;
 	ArrayList<Line2D> lines = new ArrayList<Line2D>();
+	JLabel timeTotal = new JLabel("");			
+	JLabel distTotal = new JLabel("");
+	JLabel seedAvg = new JLabel("");
 	
 	
 	public MapViewer(String filename, Graph graph) throws IOException {
-		super("Map!!!");
+		super("NBA Roadmap");
 		this.graph = graph;
 		this.filename = filename;
-		this.setSize(1000, 750);
+		this.setSize(1200, 850);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
+		
+		
+		
 		controlPanel = new ControlPanel();
 		content.add(controlPanel, BorderLayout.NORTH);
+		this.add(new JSeparator(SwingConstants.VERTICAL));
+		
+		
+//		this.addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mousePressed(MouseEvent e) {
+//				System.out.println("x: "+ e.getX() + " y: " + e.getY());
+//			}
+//		});
+		
+		
+
+		
+		
+		
+		
+		
+		
 		mapPanel = new JPanel();
 		ImageIcon img = new ImageIcon("src/Map/mapimg.png");
 		Image image = img.getImage();
-		Image newimg = image.getScaledInstance(1000,  575,  java.awt.Image.SCALE_SMOOTH);
+		Image newimg = image.getScaledInstance(1200,  675,  java.awt.Image.SCALE_SMOOTH);
 		img = new ImageIcon(newimg); 
 		mapPanel.add(new JLabel(img));
+		
 		this.add(mapPanel);
 //		this.add(new JLabel("hello"));
 //		this.pack();
@@ -135,25 +169,30 @@ public class MapViewer extends JFrame {
 			Line2D line = new Line2D.Float(x1, y1, x2, y2);
 			lines.add(line);
 			this.repaint();
-			System.out.println("line added");
 		}catch (NullPointerException n){
 			System.out.println("SELECT TWO TEAMS");
 		}
 		
 	}
 	
-	public void drawPath(ArrayList<Node> nodes) {
-			
-		
+	public void drawAllPaths() {
+		Hashtable<Integer, Node> nodes = graph.getNodes();
+		for (Node node : nodes.values()) {
+			ArrayList<Edge> edges = node.edges;
+			for (Edge edge : edges) {
+				drawConnectingLine(edge.node1.teamName, edge.node2.teamName);
+			}
+		}
 	}
 	
 	public void paint(Graphics gp) {
 		super.paint(gp);
+		
 		Graphics2D graphics = (Graphics2D) gp;
 //		Line2D line = new Line2D.Float(0, 0, 150, 220);
 //	    graphics.draw(line);
 	    for (Line2D eachLine : lines) {
-	    	graphics.setColor(Color.YELLOW);
+	    	graphics.setColor(Color.RED);
 	    	float[] dashingPattern = {5f, 5f};
 	    	Stroke stroke3 = new BasicStroke(4f, BasicStroke.CAP_ROUND,
 	    	        BasicStroke.JOIN_ROUND, 2.0f, null, 0.0f);
@@ -197,13 +236,48 @@ public class MapViewer extends JFrame {
 			this.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					String team1 = String.valueOf(teamListDropdown1.getSelectedItem());
-					String team2 = String.valueOf(teamListDropdown2.getSelectedItem());
-					drawConnectingLine(team1, team2);
 					String sortedBy = "none";
 					if (controlPanel.sortGroup.getSelection() != null) {
 						sortedBy = controlPanel.sortGroup.getSelection().getActionCommand();
-					}		
+					}	
+					int sortVal = 0;
+					if (sortedBy != "none") {
+						sortVal = Integer.parseInt(sortedBy);
+					}
+					
+					String team1 = String.valueOf(teamListDropdown1.getSelectedItem());
+					String team2 = String.valueOf(teamListDropdown2.getSelectedItem());
+
+					if (teamList.containsKey(team1) && teamList.containsKey(team2) && team1 != team2) {
+					// FIXME: change from 0 to sortVal 
+					ArrayList<Node> shortestPath = graph.shortestPath(sortVal, teamList.get(team1), teamList.get(team2));
+					lines = new ArrayList<Line2D>();
+					int totalDistance = 0;
+					int totalSeed = 0;
+					int totalTime = 0;					
+					totalSeed += shortestPath.get(0).seed + teamList.get(team2);
+					ArrayList<Edge> lastEdges = shortestPath.get(0).edges;
+					for (Edge edge : lastEdges) {
+						if (edge.node1.seed == shortestPath.get(0).seed && edge.node2.seed == teamList.get(team2) || edge.node1.seed == teamList.get(team2) && edge.node2.seed == shortestPath.get(0).seed ) {
+							totalDistance += edge.distanceCost;
+							totalTime += edge.timeCost;							
+						}
+					}
+					for (int i  = 0; i < shortestPath.size()-1; i ++) {
+						drawConnectingLine(shortestPath.get(shortestPath.size()-i-1).teamName, shortestPath.get(shortestPath.size()-i-2).teamName);
+						totalSeed += shortestPath.get(shortestPath.size()-i-1).seed;
+						ArrayList<Edge> edges = shortestPath.get(shortestPath.size()-i-1).edges;
+						for (Edge edge : edges) {
+							if (edge.node1 == shortestPath.get(shortestPath.size()-i-1) && edge.node2 == shortestPath.get(shortestPath.size()-i-2) || edge.node1 == shortestPath.get(shortestPath.size()-i-2) && edge.node2 == shortestPath.get(shortestPath.size()-i-1) ) {
+								totalDistance += edge.distanceCost;
+								totalTime += edge.timeCost;
+							}
+						}
+						
+					}
+					
+					drawConnectingLine(shortestPath.get(0).teamName, team2);
+					
 					
 					ArrayList<String> showing = new ArrayList<String>();
 					
@@ -212,8 +286,29 @@ public class MapViewer extends JFrame {
 							showing.add(cbox.getActionCommand());
 						}
 					}
+					if (showing.contains("showTime" )) {
+						timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)*60+"min"));
+					}else {
+						timeTotal.setText(""); 
+					}
+					if (showing.contains("showDist")) {
+						distTotal.setText("Distance: " + totalDistance + " miles");
+					}else {
+						distTotal.setText("");
+					}
+					if (showing.contains("showRank")) {
+						DecimalFormat df=new DecimalFormat("#.00");  
+						String rankFormatted = df.format((((double)totalSeed) / (double)(shortestPath.size()+1)));
+						seedAvg.setText("Avg Rank: "+ rankFormatted);
+					}else {
+						seedAvg.setText("");
+					}
+					
 					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());
 					repaint();
+				}else {
+					System.out.println("Please pick two teams!");
+				}
 				}
 			});
 		}
@@ -244,40 +339,109 @@ public class MapViewer extends JFrame {
 		
 		public ControlPanel() throws IOException {
 			TitledBorder border = BorderFactory.createTitledBorder(
-					BorderFactory.createLoweredBevelBorder(), "NBA Roadmap");
+					BorderFactory.createLoweredBevelBorder(), "Trip Planner");
 			border.setTitleJustification(TitledBorder.LEFT);
 			this.setBorder(border);
 			this.setLayout(new FlowLayout());
 			addTeamsAndSeeds();
-			// Add dropdowns
 			ArrayList<String> teamArray = new ArrayList<String>();
 			for (String val : teamList.keySet()) {
 				teamArray.add(val);
 			}
 			Collections.sort(teamArray);
 			String[] array = teamArray.toArray(new String[teamArray.size()]);
+			
+			
+			
+			final JComboBox tripPlannerDropdown = new JComboBox(array);
+			tripPlannerDropdown.setRenderer(new MyComboBoxRenderer("Starting Location"));
+			tripPlannerDropdown.setSelectedIndex(-1);
+//			this.add(tripPlannerDropdown);
+			// Trip planner
+			JPanel tripPanel = new JPanel();
+			tripPanel.setLayout( new BorderLayout(10, 5));
+			JPanel labelPanel = new JPanel();
+			labelPanel.setLayout( new BorderLayout(10, 0));
+			
+			tripPanel.add(tripPlannerDropdown, BorderLayout.NORTH);
+					
+			JButton goTrip = new JButton("Plan Trip");
+			
+			tripPanel.add(goTrip, BorderLayout.SOUTH);
+//			tripPanel.add(tripLabel, BorderLayout.PAGE_START);
+//			System.out.println(tripLabel.getX() + ", " + tripLabel.getY());
+			
+			// http://www.java2s.com/Tutorial/Java/0240__Swing/Numberspinner.htm
+			final JSpinner m_numberSpinner;
+		    SpinnerNumberModel m_numberSpinnerModel;
+		    Double current = new Double(5.50);
+		    Double min = new Double(0.00);
+		    Double max = new Double(48.00);
+		    Double step = new Double(.5);
+		    m_numberSpinnerModel = new SpinnerNumberModel(current, min, max, step);
+		    m_numberSpinner = new JSpinner(m_numberSpinnerModel);		    
+		    ((DefaultEditor) m_numberSpinner.getEditor()).getTextField().setEditable(false);
+		    tripPanel.add(m_numberSpinner, BorderLayout.CENTER);
+		    JLabel label1 = new JLabel("");
+		    label1.setText("<html>How many hours would you<br>       like to spend on the road?<br>(round trip)</html>");
+		    tripPanel.add(label1, BorderLayout.LINE_START);
+		    goTrip.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ m_numberSpinner.getValue() +" hours");
+				}
+			});
+			this.add(tripPanel);
+			// Trip planner end
+			
+			
+			
+			
+			
+			
+			
+			JLabel spaceLabel0 = new JLabel("            ");
+			this.add(spaceLabel0);
+			
+			
+			// Add dropdowns
+			
+			JPanel dropDownPanel = new JPanel();
+			dropDownPanel.setLayout(new BorderLayout(5, 10));
+			JLabel gpsLabel = new JLabel("                                          GPS");
+			gpsLabel.setFont(new Font("Serif", Font.PLAIN, 14));
+			dropDownPanel.add(gpsLabel, BorderLayout.NORTH);
+			
 			teamListDropdown1 = new JComboBox(array);
 			teamListDropdown2 = new JComboBox(array);
 			teamListDropdown1.setRenderer(new MyComboBoxRenderer("START"));
 			teamListDropdown1.setSelectedIndex(-1);
 			teamListDropdown2.setRenderer(new MyComboBoxRenderer("END"));
 			teamListDropdown2.setSelectedIndex(-1);
-			this.add(teamListDropdown1);
+			dropDownPanel.add(teamListDropdown1, BorderLayout.WEST);
 			JLabel toLabel = new JLabel("TO");
-			this.add(toLabel);
-			this.add(teamListDropdown2);
+			dropDownPanel.add(toLabel, BorderLayout.CENTER);
+			dropDownPanel.add(teamListDropdown2, BorderLayout.EAST);
 			// End dropdowns
+			this.add(dropDownPanel);
+			
+			
+			JLabel spaceLabel = new JLabel("            ");
+			this.add(spaceLabel);
+			
+			
 			
 			// Add sort buttons
 			JLabel sortLabel = new JLabel("Sort By:");
 			sortLabel.setFont(new Font("Serif", Font.PLAIN, 18));
 			this.add(sortLabel);			
 			JRadioButton sortByTimeButton = new JRadioButton("Time");
+			sortByTimeButton.setSelected(true);
 			JRadioButton sortByDistanceButton = new JRadioButton("Distance");
 			JRadioButton sortByCompetitionButton = new JRadioButton("Competition");
-			sortByCompetitionButton.setActionCommand("comp");
-			sortByDistanceButton.setActionCommand("dist");
-			sortByTimeButton.setActionCommand("time");
+			sortByCompetitionButton.setActionCommand("2");
+			sortByDistanceButton.setActionCommand("0");
+			sortByTimeButton.setActionCommand("1");
 			this.sortGroup = new ButtonGroup();
 			Box sortBox = Box.createVerticalBox();
 			sortBox.add(sortLabel);
@@ -294,7 +458,7 @@ public class MapViewer extends JFrame {
 			JLabel showLabel = new JLabel("Show:");
 			showLabel.setFont(new Font("Serif", Font.PLAIN, 18));
 			this.add(showLabel);			
-			JCheckBox showTimeButton = new JCheckBox("Time");
+			JCheckBox showTimeButton = new JCheckBox("Time");			
 			JCheckBox showDistanceButton = new JCheckBox("Distance");
 			JCheckBox showRankButton = new JCheckBox("Rank");
 			this.checkBoxes.add(showTimeButton);
@@ -313,26 +477,53 @@ public class MapViewer extends JFrame {
 			
 			// Add results panel
 			JPanel resultsPanel = new JPanel();
-			JLabel timeTotal = new JLabel("Time: 5hr 36min");	
+			timeTotal = new JLabel("");	
 			timeTotal.setFont(new Font("Serif", Font.PLAIN, 18));			
 			Box boxTwo = Box.createVerticalBox();
 			boxTwo.add(timeTotal);
-			JLabel distTotal = new JLabel("Distance: 372mi");
+			distTotal = new JLabel("");
 			distTotal.setFont(new Font("Serif", Font.PLAIN, 18));
 			boxTwo.add(distTotal);
-			JLabel seedAvg = new JLabel("Avg. Rank: 13.4");
+			seedAvg = new JLabel("");
 			seedAvg.setFont(new Font("Serif", Font.PLAIN, 18));
 			boxTwo.add(seedAvg);				
 			resultsPanel.add(boxTwo);
 			// End results panel
 			
 			this.add(resultsPanel);
+			
+			JPanel drawButtonsPanel = new JPanel();
+			drawButtonsPanel.setLayout(new BorderLayout(0, 10));
+			JButton drawAll = new JButton("Show all Paths");
+			drawAll.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					drawAllPaths();
+				}
+				});
+			drawAll.setFocusPainted(false);
+			drawAll.setBackground(new Color(59, 89, 182));
+			drawAll.setFont(new Font("Tahoma", Font.BOLD, 12));
+			drawAll.setForeground(Color.WHITE);
+			drawButtonsPanel.add(drawAll, BorderLayout.NORTH);
+			
 			// Add GO button
 			JButton goButton = new GoButton();
+			goButton.setPreferredSize(new Dimension(5, 20));
+			drawButtonsPanel.add(goButton, BorderLayout.CENTER);
+//			this.add(goButton);
+			this.add(drawButtonsPanel);
 			
-			this.add(goButton);
 			
 			// End GO button
+			
+			
+			JLabel spaceLabel2 = new JLabel(" ");
+			this.add(spaceLabel2);
+			
+			
+			
+			
 			
 			
 
