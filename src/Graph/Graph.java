@@ -185,48 +185,62 @@ public class Graph<T> {
 	
 	public ArrayList<Node> tripPlanner(int sourceSeed, int timemax){
 		ArrayList<Node> returns = new ArrayList<Node>();
+		ArrayList<Node> used = new ArrayList<Node>();
 		Node Source = nodes.get(sourceSeed);
 		Random rand = new Random();
 		//rand.nextInt(bound);
 		int currentdist =0;
 		boolean foundpath = false;
+		Node traverse = Source;
 		while(!foundpath) {
+			used.add(traverse);
 			
-			Node traverse = Source;
-			while(traverse!=Source) {
-				for(int i=0; i<traverse.edges.size();i++ ){
-					if(traverse.edges.get(i).node2.seed==sourceSeed ){
-						if(timemax - (currentdist+traverse.edges.get(i).timeCost) < 100) {
-							returns.add(traverse.edges.get(i).node2);
-							foundpath=true;
-							break;
-						}
-					}
-				}
+			//while(traverse!=Source) {
+//				for(int i=0; i<traverse.edges.size();i++ ){
+//					if(traverse.edges.get(i).node2.seed==sourceSeed ){
+//						if(timemax - (currentdist+traverse.edges.get(i).timeCost) < 100) {
+//							returns.add(traverse.edges.get(i).node2);
+//							foundpath=true;
+//							break;
+//						}
+//					}
+//				}
 				if(foundpath==false) {
 				int next = rand.nextInt(traverse.edges.size());
-				
-				returns.add(traverse.edges.get(next).node2);
-				currentdist+=(traverse.edges.get(next).timeCost);
-				if(traverse.edges.get(next).node2==Source) {
-					if (timemax-currentdist < 100) {
-						foundpath=true;
+				boolean notsame = false;
+				while(!notsame) {
+					for(int i=0; i<used.size();i++ ){
+					if(traverse.edges.get(next).node2.seed==used.get(i).seed ){
+						next = rand.nextInt(traverse.edges.size());
 						break;
 					} else {
-						returns.clear();
-						currentdist=0;
+						notsame = true;
 						break;
 					}
 				}
+					
+				};
 				if (currentdist>timemax) {
-					returns.clear();
-					currentdist=0;
+					foundpath=true;
 					break;
 				} 
+				returns.add(traverse.edges.get(next).node2);
+				currentdist+=(traverse.edges.get(next).timeCost);
+//				if(traverse.edges.get(next).node2==Source) {
+//					if (timemax-currentdist < 100) {
+//						foundpath=true;
+//						break;
+//					} else {
+//						returns.clear();
+//						currentdist=0;
+//						break;
+//					}
+//				}
+				
 				traverse = traverse.edges.get(next).node2;
 				
 				}
-			}
+			//}
 			
 		}
 		return returns;
