@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -39,7 +40,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
@@ -81,6 +84,32 @@ public class MapViewer extends JFrame {
 		content.setLayout(new BorderLayout());
 		controlPanel = new ControlPanel();
 		content.add(controlPanel, BorderLayout.NORTH);
+		JPanel plannerPanel = new JPanel();
+		JLabel tripPlannerLabel = new JLabel("Trip Planner");
+		
+		
+		
+		
+//		ArrayList<String> teamArray = new ArrayList<String>();
+//		for (String val : teamList.keySet()) {
+//			teamArray.add(val);
+//		}
+//		Collections.sort(teamArray);
+//		String[] array = teamArray.toArray(new String[teamArray.size()]);
+//		JComboBox tripPlannerDropdown = new JComboBox(array);
+//		tripPlannerDropdown.setRenderer(new MyComboBoxRenderer("Starting Location"));
+//		tripPlannerDropdown.setSelectedIndex(-1);
+//		
+//		plannerPanel.add(tripPlannerDropdown);
+//		JSplitPane pane = new JSplitPane( JSplitPane.VERTICAL_SPLIT, 
+//                plannerPanel, controlPanel );
+//		this.add(pane);
+		
+		
+		
+		
+		
+		
 		mapPanel = new JPanel();
 		ImageIcon img = new ImageIcon("src/Map/mapimg.png");
 		Image image = img.getImage();
@@ -139,16 +168,20 @@ public class MapViewer extends JFrame {
 			Line2D line = new Line2D.Float(x1, y1, x2, y2);
 			lines.add(line);
 			this.repaint();
-			System.out.println("line added");
 		}catch (NullPointerException n){
 			System.out.println("SELECT TWO TEAMS");
 		}
 		
 	}
 	
-	public void drawPath(ArrayList<Node> nodes) {
-			
-		
+	public void drawAllPaths() {
+		Hashtable<Integer, Node> nodes = graph.getNodes();
+		for (Node node : nodes.values()) {
+			ArrayList<Edge> edges = node.edges;
+			for (Edge edge : edges) {
+				drawConnectingLine(edge.node1.teamName, edge.node2.teamName);
+			}
+		}
 	}
 	
 	public void paint(Graphics gp) {
@@ -157,7 +190,7 @@ public class MapViewer extends JFrame {
 //		Line2D line = new Line2D.Float(0, 0, 150, 220);
 //	    graphics.draw(line);
 	    for (Line2D eachLine : lines) {
-	    	graphics.setColor(Color.YELLOW);
+	    	graphics.setColor(Color.RED);
 	    	float[] dashingPattern = {5f, 5f};
 	    	Stroke stroke3 = new BasicStroke(4f, BasicStroke.CAP_ROUND,
 	    	        BasicStroke.JOIN_ROUND, 2.0f, null, 0.0f);
@@ -216,7 +249,6 @@ public class MapViewer extends JFrame {
 					if (teamList.containsKey(team1) && teamList.containsKey(team2) && team1 != team2) {
 					// FIXME: change from 0 to sortVal 
 					ArrayList<Node> shortestPath = graph.shortestPath(0, teamList.get(team1), teamList.get(team2));
-					System.out.println("hi");
 					lines = new ArrayList<Line2D>();
 					int totalDistance = 0;
 					int totalSeed = 0;
@@ -230,7 +262,6 @@ public class MapViewer extends JFrame {
 							totalTime += edge.timeCost;							
 						}
 					}
-					System.out.println("hi");
 					for (int i  = 0; i < shortestPath.size()-1; i ++) {
 						drawConnectingLine(shortestPath.get(shortestPath.size()-i-1).teamName, shortestPath.get(shortestPath.size()-i-2).teamName);
 						totalSeed += shortestPath.get(shortestPath.size()-i-1).seed;
@@ -244,7 +275,6 @@ public class MapViewer extends JFrame {
 						
 					}
 					
-					System.out.println("hi");
 					drawConnectingLine(shortestPath.get(0).teamName, team2);
 					
 					
@@ -311,13 +341,20 @@ public class MapViewer extends JFrame {
 			this.setBorder(border);
 			this.setLayout(new FlowLayout());
 			addTeamsAndSeeds();
-			// Add dropdowns
 			ArrayList<String> teamArray = new ArrayList<String>();
 			for (String val : teamList.keySet()) {
 				teamArray.add(val);
 			}
 			Collections.sort(teamArray);
 			String[] array = teamArray.toArray(new String[teamArray.size()]);
+			
+			
+			
+			
+			
+			
+			// Add dropdowns
+			
 			teamListDropdown1 = new JComboBox(array);
 			teamListDropdown2 = new JComboBox(array);
 			teamListDropdown1.setRenderer(new MyComboBoxRenderer("START"));
@@ -395,7 +432,21 @@ public class MapViewer extends JFrame {
 			
 			this.add(goButton);
 			
+			
+			
 			// End GO button
+			JButton drawAll = new JButton("Show all Paths");
+			drawAll.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					drawAllPaths();
+				}
+				});
+			drawAll.setFocusPainted(false);
+			drawAll.setBackground(new Color(59, 89, 182));
+			drawAll.setFont(new Font("Tahoma", Font.BOLD, 12));
+			drawAll.setForeground(Color.WHITE);
+			this.add(drawAll);
 			
 			
 
