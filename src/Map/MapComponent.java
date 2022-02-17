@@ -37,7 +37,6 @@ public class MapComponent {
 		FormulaEvaluator formulaEvaluator=wb.getCreationHelper().createFormulaEvaluator();  
 		for(Row row: sheet)     //iteration over row using for each loop  
 		{  
-			System.out.println("Name: "+row.getCell(0).getStringCellValue() +" , Seed: " + (int)row.getCell(1).getNumericCellValue());
 			graph.addNode((int)row.getCell(1).getNumericCellValue(), row.getCell(0).getStringCellValue(), (int)row.getCell(2).getNumericCellValue(), (int)row.getCell(3).getNumericCellValue());
 		}  
 	}

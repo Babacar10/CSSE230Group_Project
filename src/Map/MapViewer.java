@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,14 +92,15 @@ public class MapViewer extends JFrame {
 		
 		controlPanel = new ControlPanel();
 		content.add(controlPanel, BorderLayout.NORTH);
+		this.add(new JSeparator(SwingConstants.VERTICAL));
 		
 		
-		this.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				System.out.println("x: "+ e.getX() + " y: " + e.getY());
-			}
-		});
+//		this.addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mousePressed(MouseEvent e) {
+//				System.out.println("x: "+ e.getX() + " y: " + e.getY());
+//			}
+//		});
 		
 		
 
@@ -295,7 +297,9 @@ public class MapViewer extends JFrame {
 						distTotal.setText("");
 					}
 					if (showing.contains("showRank")) {
-						seedAvg.setText("Avg Rank: "+ totalSeed / (shortestPath.size()+1));
+						DecimalFormat df=new DecimalFormat("#.00");  
+						String rankFormatted = df.format((((double)totalSeed) / (double)(shortestPath.size()+1)));
+						seedAvg.setText("Avg Rank: "+ rankFormatted);
 					}else {
 						seedAvg.setText("");
 					}
@@ -335,7 +339,7 @@ public class MapViewer extends JFrame {
 		
 		public ControlPanel() throws IOException {
 			TitledBorder border = BorderFactory.createTitledBorder(
-					BorderFactory.createLoweredBevelBorder(), "NBA Roadmap");
+					BorderFactory.createLoweredBevelBorder(), "Trip Planner");
 			border.setTitleJustification(TitledBorder.LEFT);
 			this.setBorder(border);
 			this.setLayout(new FlowLayout());
@@ -347,6 +351,8 @@ public class MapViewer extends JFrame {
 			Collections.sort(teamArray);
 			String[] array = teamArray.toArray(new String[teamArray.size()]);
 			
+			
+			
 			final JComboBox tripPlannerDropdown = new JComboBox(array);
 			tripPlannerDropdown.setRenderer(new MyComboBoxRenderer("Starting Location"));
 			tripPlannerDropdown.setSelectedIndex(-1);
@@ -356,10 +362,9 @@ public class MapViewer extends JFrame {
 			tripPanel.setLayout( new BorderLayout(10, 5));
 			JPanel labelPanel = new JPanel();
 			labelPanel.setLayout( new BorderLayout(10, 0));
-			JLabel tripLabel = new JLabel("         Trip Planner");
-			labelPanel.add(tripLabel, BorderLayout.SOUTH);
+			
 			tripPanel.add(tripPlannerDropdown, BorderLayout.NORTH);
-			tripLabel.setFont(new Font("Serif", Font.PLAIN, 18));			
+					
 			JButton goTrip = new JButton("Plan Trip");
 			
 			tripPanel.add(goTrip, BorderLayout.SOUTH);
@@ -378,7 +383,7 @@ public class MapViewer extends JFrame {
 		    ((DefaultEditor) m_numberSpinner.getEditor()).getTextField().setEditable(false);
 		    tripPanel.add(m_numberSpinner, BorderLayout.CENTER);
 		    JLabel label1 = new JLabel("");
-		    label1.setText("<html>How many hours would you<br>       like to spend on the road?</html>");
+		    label1.setText("<html>How many hours would you<br>       like to spend on the road?<br>(round trip)</html>");
 		    tripPanel.add(label1, BorderLayout.LINE_START);
 		    goTrip.addMouseListener(new MouseAdapter() {
 				@Override
@@ -394,11 +399,18 @@ public class MapViewer extends JFrame {
 			
 			
 			
+			
 			JLabel spaceLabel0 = new JLabel("            ");
 			this.add(spaceLabel0);
 			
 			
 			// Add dropdowns
+			
+			JPanel dropDownPanel = new JPanel();
+			dropDownPanel.setLayout(new BorderLayout(5, 10));
+			JLabel gpsLabel = new JLabel("                                          GPS");
+			gpsLabel.setFont(new Font("Serif", Font.PLAIN, 14));
+			dropDownPanel.add(gpsLabel, BorderLayout.NORTH);
 			
 			teamListDropdown1 = new JComboBox(array);
 			teamListDropdown2 = new JComboBox(array);
@@ -406,11 +418,12 @@ public class MapViewer extends JFrame {
 			teamListDropdown1.setSelectedIndex(-1);
 			teamListDropdown2.setRenderer(new MyComboBoxRenderer("END"));
 			teamListDropdown2.setSelectedIndex(-1);
-			this.add(teamListDropdown1);
+			dropDownPanel.add(teamListDropdown1, BorderLayout.WEST);
 			JLabel toLabel = new JLabel("TO");
-			this.add(toLabel);
-			this.add(teamListDropdown2);
+			dropDownPanel.add(toLabel, BorderLayout.CENTER);
+			dropDownPanel.add(teamListDropdown2, BorderLayout.EAST);
 			// End dropdowns
+			this.add(dropDownPanel);
 			
 			
 			JLabel spaceLabel = new JLabel("            ");
