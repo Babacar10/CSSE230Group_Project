@@ -374,10 +374,10 @@ public class MapViewer extends JFrame {
 			// http://www.java2s.com/Tutorial/Java/0240__Swing/Numberspinner.htm
 			final JSpinner m_numberSpinner;
 		    SpinnerNumberModel m_numberSpinnerModel;
-		    Double current = new Double(5.50);
-		    Double min = new Double(0.00);
-		    Double max = new Double(48.00);
-		    Double step = new Double(.5);
+		    Integer current = new Integer(5);
+		    Integer min = new Integer(0);
+		    Integer max = new Integer(48);
+		    Integer step = new Integer(1);
 		    m_numberSpinnerModel = new SpinnerNumberModel(current, min, max, step);
 		    m_numberSpinner = new JSpinner(m_numberSpinnerModel);		    
 		    ((DefaultEditor) m_numberSpinner.getEditor()).getTextField().setEditable(false);
@@ -388,8 +388,11 @@ public class MapViewer extends JFrame {
 		    goTrip.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ m_numberSpinner.getValue() +" hours");
-					
+					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ Integer.parseInt(m_numberSpinner.getValue()+"") +" hours");
+//					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), Integer.parseInt(m_numberSpinner.getValue()+""));
+//					for (int i = 0; i < myNodes.size()-1; i ++) {
+//						drawConnectingLine(myNodes.get(i).teamName, myNodes.get(i+1).teamName);
+//					}
 				}
 			});
 			this.add(tripPanel);
