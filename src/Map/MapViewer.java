@@ -389,6 +389,7 @@ public class MapViewer extends JFrame {
 				@Override
 				public void mousePressed(MouseEvent e) {
 					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ m_numberSpinner.getValue() +" hours");
+					
 				}
 			});
 			this.add(tripPanel);
