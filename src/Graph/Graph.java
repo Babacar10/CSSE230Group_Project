@@ -96,18 +96,20 @@ public class Graph<T> {
 	}
 
 	public ArrayList<Node> shortestPath(int Cost, int sourceSeed, int targetSeed) {
-		// 0-distance 1-time 2-competitive
+		// 0-distance 1-time 2-competitive 
 		// connects from target to source
 		ArrayList<Node> Visited = new ArrayList<Node>();
 		ArrayList<Node> UnVisited = new ArrayList<Node>(34);
 		int[] shortestDistance = new int[35];
 		int[] previousVertex = new int[35];
+		int[] edgeamount = new int[35];
 		
 		for(int i = 1; i<35;i++) {
 			Node next = nodes.get(i);
 			UnVisited.add(next);
 			shortestDistance[i] = Integer.MAX_VALUE;
 			previousVertex[i] = Integer.MAX_VALUE;
+			edgeamount[i]=1;
 		}
 		
 		shortestDistance[sourceSeed] = 0;
@@ -126,14 +128,34 @@ public class Graph<T> {
 				Node other_vertex = current_vertex.edges.get(i).node2;
 				if(Cost==0) {
 				cost = current_vertex.edges.get(i).distanceCost;}
+				else if (Cost == 1) {
+					cost = current_vertex.edges.get(i).timeCost;
+				} 
+				else {
+					cost = current_vertex.edges.get(i).node2.seed;
+				}
+				if(Cost != 2) {
 				if(shortestDistance[other_vertex.seed]>(shortestDistance[current_vertex.seed] + cost)) {
 					shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost);
 					previousVertex[other_vertex.seed] = current_vertex.seed;
+				}}
+				else {
+					if(shortestDistance[other_vertex.seed] == Integer.MAX_VALUE) {
+						shortestDistance[other_vertex.seed] =  cost;
+						edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
+						previousVertex[other_vertex.seed] = current_vertex.seed;
+					}
+					else if(shortestDistance[other_vertex.seed]<((shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1))) {
+						edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
+						shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1);
+						previousVertex[other_vertex.seed] = current_vertex.seed;
+					}
 				}
 				UnVisited.remove(current_vertex);
 				Visited.add(current_vertex);
 				
-			}			
+			}
+			
 			
 		}
 		
