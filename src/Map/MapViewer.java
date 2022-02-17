@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -42,8 +43,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.JSplitPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
@@ -69,41 +73,35 @@ public class MapViewer extends JFrame {
 	ControlPanel controlPanel;
 	JPanel mapPanel;
 	ArrayList<Line2D> lines = new ArrayList<Line2D>();
-	JLabel timeTotal = new JLabel("Time: 5hr 36min");			
+	JLabel timeTotal = new JLabel("");			
 	JLabel distTotal = new JLabel("");
 	JLabel seedAvg = new JLabel("");
 	
 	
 	public MapViewer(String filename, Graph graph) throws IOException {
-		super("Map!!!");
+		super("NBA Roadmap");
 		this.graph = graph;
 		this.filename = filename;
-		this.setSize(1000, 750);
+		this.setSize(1200, 850);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container content = getContentPane();
 		content.setLayout(new BorderLayout());
+		
+		
+		
 		controlPanel = new ControlPanel();
 		content.add(controlPanel, BorderLayout.NORTH);
-		JPanel plannerPanel = new JPanel();
-		JLabel tripPlannerLabel = new JLabel("Trip Planner");
 		
 		
+		this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				System.out.println("x: "+ e.getX() + " y: " + e.getY());
+			}
+		});
 		
 		
-//		ArrayList<String> teamArray = new ArrayList<String>();
-//		for (String val : teamList.keySet()) {
-//			teamArray.add(val);
-//		}
-//		Collections.sort(teamArray);
-//		String[] array = teamArray.toArray(new String[teamArray.size()]);
-//		JComboBox tripPlannerDropdown = new JComboBox(array);
-//		tripPlannerDropdown.setRenderer(new MyComboBoxRenderer("Starting Location"));
-//		tripPlannerDropdown.setSelectedIndex(-1);
-//		
-//		plannerPanel.add(tripPlannerDropdown);
-//		JSplitPane pane = new JSplitPane( JSplitPane.VERTICAL_SPLIT, 
-//                plannerPanel, controlPanel );
-//		this.add(pane);
+
 		
 		
 		
@@ -113,9 +111,10 @@ public class MapViewer extends JFrame {
 		mapPanel = new JPanel();
 		ImageIcon img = new ImageIcon("src/Map/mapimg.png");
 		Image image = img.getImage();
-		Image newimg = image.getScaledInstance(1000,  575,  java.awt.Image.SCALE_SMOOTH);
+		Image newimg = image.getScaledInstance(1200,  675,  java.awt.Image.SCALE_SMOOTH);
 		img = new ImageIcon(newimg); 
 		mapPanel.add(new JLabel(img));
+		
 		this.add(mapPanel);
 //		this.add(new JLabel("hello"));
 //		this.pack();
@@ -186,6 +185,7 @@ public class MapViewer extends JFrame {
 	
 	public void paint(Graphics gp) {
 		super.paint(gp);
+		
 		Graphics2D graphics = (Graphics2D) gp;
 //		Line2D line = new Line2D.Float(0, 0, 150, 220);
 //	    graphics.draw(line);
@@ -248,7 +248,7 @@ public class MapViewer extends JFrame {
 
 					if (teamList.containsKey(team1) && teamList.containsKey(team2) && team1 != team2) {
 					// FIXME: change from 0 to sortVal 
-					ArrayList<Node> shortestPath = graph.shortestPath(0, teamList.get(team1), teamList.get(team2));
+					ArrayList<Node> shortestPath = graph.shortestPath(sortVal, teamList.get(team1), teamList.get(team2));
 					lines = new ArrayList<Line2D>();
 					int totalDistance = 0;
 					int totalSeed = 0;
@@ -256,7 +256,6 @@ public class MapViewer extends JFrame {
 					totalSeed += shortestPath.get(0).seed + teamList.get(team2);
 					ArrayList<Edge> lastEdges = shortestPath.get(0).edges;
 					for (Edge edge : lastEdges) {
-						System.out.println("node 1: "+ edge.node1.teamName + " node 2: " + edge.node2.teamName);
 						if (edge.node1.seed == shortestPath.get(0).seed && edge.node2.seed == teamList.get(team2) || edge.node1.seed == teamList.get(team2) && edge.node2.seed == shortestPath.get(0).seed ) {
 							totalDistance += edge.distanceCost;
 							totalTime += edge.timeCost;							
@@ -286,7 +285,7 @@ public class MapViewer extends JFrame {
 						}
 					}
 					if (showing.contains("showTime" )) {
-						timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)+"min"));
+						timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)*60+"min"));
 					}else {
 						timeTotal.setText(""); 
 					}
@@ -348,9 +347,55 @@ public class MapViewer extends JFrame {
 			Collections.sort(teamArray);
 			String[] array = teamArray.toArray(new String[teamArray.size()]);
 			
+			final JComboBox tripPlannerDropdown = new JComboBox(array);
+			tripPlannerDropdown.setRenderer(new MyComboBoxRenderer("Starting Location"));
+			tripPlannerDropdown.setSelectedIndex(-1);
+//			this.add(tripPlannerDropdown);
+			// Trip planner
+			JPanel tripPanel = new JPanel();
+			tripPanel.setLayout( new BorderLayout(10, 5));
+			JPanel labelPanel = new JPanel();
+			labelPanel.setLayout( new BorderLayout(10, 0));
+			JLabel tripLabel = new JLabel("         Trip Planner");
+			labelPanel.add(tripLabel, BorderLayout.SOUTH);
+			tripPanel.add(tripPlannerDropdown, BorderLayout.NORTH);
+			tripLabel.setFont(new Font("Serif", Font.PLAIN, 18));			
+			JButton goTrip = new JButton("Plan Trip");
+			
+			tripPanel.add(goTrip, BorderLayout.SOUTH);
+//			tripPanel.add(tripLabel, BorderLayout.PAGE_START);
+//			System.out.println(tripLabel.getX() + ", " + tripLabel.getY());
+			
+			// http://www.java2s.com/Tutorial/Java/0240__Swing/Numberspinner.htm
+			final JSpinner m_numberSpinner;
+		    SpinnerNumberModel m_numberSpinnerModel;
+		    Double current = new Double(5.50);
+		    Double min = new Double(0.00);
+		    Double max = new Double(48.00);
+		    Double step = new Double(.5);
+		    m_numberSpinnerModel = new SpinnerNumberModel(current, min, max, step);
+		    m_numberSpinner = new JSpinner(m_numberSpinnerModel);		    
+		    ((DefaultEditor) m_numberSpinner.getEditor()).getTextField().setEditable(false);
+		    tripPanel.add(m_numberSpinner, BorderLayout.CENTER);
+		    JLabel label1 = new JLabel("");
+		    label1.setText("<html>How many hours would you<br>       like to spend on the road?</html>");
+		    tripPanel.add(label1, BorderLayout.LINE_START);
+		    goTrip.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ m_numberSpinner.getValue() +" hours");
+				}
+			});
+			this.add(tripPanel);
+			// Trip planner end
 			
 			
 			
+			
+			
+			
+			JLabel spaceLabel0 = new JLabel("            ");
+			this.add(spaceLabel0);
 			
 			
 			// Add dropdowns
@@ -366,6 +411,12 @@ public class MapViewer extends JFrame {
 			this.add(toLabel);
 			this.add(teamListDropdown2);
 			// End dropdowns
+			
+			
+			JLabel spaceLabel = new JLabel("            ");
+			this.add(spaceLabel);
+			
+			
 			
 			// Add sort buttons
 			JLabel sortLabel = new JLabel("Sort By:");
@@ -427,14 +478,9 @@ public class MapViewer extends JFrame {
 			// End results panel
 			
 			this.add(resultsPanel);
-			// Add GO button
-			JButton goButton = new GoButton();
 			
-			this.add(goButton);
-			
-			
-			
-			// End GO button
+			JPanel drawButtonsPanel = new JPanel();
+			drawButtonsPanel.setLayout(new BorderLayout(0, 10));
 			JButton drawAll = new JButton("Show all Paths");
 			drawAll.addMouseListener(new MouseAdapter() {
 				@Override
@@ -446,7 +492,25 @@ public class MapViewer extends JFrame {
 			drawAll.setBackground(new Color(59, 89, 182));
 			drawAll.setFont(new Font("Tahoma", Font.BOLD, 12));
 			drawAll.setForeground(Color.WHITE);
-			this.add(drawAll);
+			drawButtonsPanel.add(drawAll, BorderLayout.NORTH);
+			
+			// Add GO button
+			JButton goButton = new GoButton();
+			goButton.setPreferredSize(new Dimension(5, 20));
+			drawButtonsPanel.add(goButton, BorderLayout.CENTER);
+//			this.add(goButton);
+			this.add(drawButtonsPanel);
+			
+			
+			// End GO button
+			
+			
+			JLabel spaceLabel2 = new JLabel(" ");
+			this.add(spaceLabel2);
+			
+			
+			
+			
 			
 			
 
