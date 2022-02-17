@@ -4,6 +4,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Random;
 
 public class Graph<T> {
 	private Hashtable<Integer, Node> nodes;
@@ -143,23 +144,24 @@ public class Graph<T> {
 				else {
 					cost = current_vertex.edges.get(i).node2.seed;
 				}
-				if(Cost != 2) {
+				//if(Cost != 2) {
 				if(shortestDistance[other_vertex.seed]>(shortestDistance[current_vertex.seed] + cost)) {
 					shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost);
 					previousVertex[other_vertex.seed] = current_vertex.seed;
-				}}
-				else {
-					if(shortestDistance[other_vertex.seed] == Integer.MAX_VALUE) {
-						shortestDistance[other_vertex.seed] =  cost;
-						edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
-						previousVertex[other_vertex.seed] = current_vertex.seed;
-					}
-					else if(shortestDistance[other_vertex.seed]<((shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1))) {
-						edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
-						shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1);
-						previousVertex[other_vertex.seed] = current_vertex.seed;
-					}
 				}
+				//}
+//				else {
+//					if(shortestDistance[other_vertex.seed] == Integer.MAX_VALUE) {
+//						shortestDistance[other_vertex.seed] =  cost;
+//						edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
+//						previousVertex[other_vertex.seed] = current_vertex.seed;
+//					}
+//					else if(shortestDistance[other_vertex.seed]<((shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1))) {
+//						edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
+//						shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1);
+//						previousVertex[other_vertex.seed] = current_vertex.seed;
+//					}
+//				}
 				UnVisited.remove(current_vertex);
 				Visited.add(current_vertex);
 				
@@ -178,7 +180,58 @@ public class Graph<T> {
 		//returns.add(nodes.get(sourceSeed));
 		return returns;
 		
+		
 	}
+	
+	public ArrayList<Node> tripPlanner(int sourceSeed, int timemax){
+		ArrayList<Node> returns = new ArrayList<Node>();
+		Node Source = nodes.get(sourceSeed);
+		Random rand = new Random();
+		//rand.nextInt(bound);
+		int currentdist =0;
+		boolean foundpath = false;
+		while(!foundpath) {
+			
+			Node traverse = Source;
+			while(traverse!=Source) {
+				for(int i=0; i<traverse.edges.size();i++ ){
+					if(traverse.edges.get(i).node2.seed==sourceSeed ){
+						if(timemax - (currentdist+traverse.edges.get(i).timeCost) < 100) {
+							returns.add(traverse.edges.get(i).node2);
+							foundpath=true;
+							break;
+						}
+					}
+				}
+				if(foundpath==false) {
+				int next = rand.nextInt(traverse.edges.size());
+				
+				returns.add(traverse.edges.get(next).node2);
+				currentdist+=(traverse.edges.get(next).timeCost);
+				if(traverse.edges.get(next).node2==Source) {
+					if (timemax-currentdist < 100) {
+						foundpath=true;
+						break;
+					} else {
+						returns.clear();
+						currentdist=0;
+						break;
+					}
+				}
+				if (currentdist>timemax) {
+					returns.clear();
+					currentdist=0;
+					break;
+				} 
+				traverse = traverse.edges.get(next).node2;
+				
+				}
+			}
+			
+		}
+		return returns;
+	}
+
 	
 	public LinkedList<Node> A_Star(Node start, Node goal) {
 		PriorityQueue<APath> openSet = new PriorityQueue<APath>();
@@ -227,6 +280,8 @@ public class Graph<T> {
 		
 		return null;
 	}
+	
+	
 
 	private class APath implements Comparable<APath> {		
 		private Node start;
