@@ -179,8 +179,8 @@ public class Graph<T> {
 		return returns;
 
 	}
-	
-	public ArrayList<Node> tripPlanner(int sourceSeed, int timemax){
+
+	public ArrayList<Node> tripPlanner(int sourceSeed, int timemax) {
 //		ArrayList<Node> returns = new ArrayList<Node>();
 //		ArrayList<Node> used = new ArrayList<Node>();
 //		Node Source = nodes.get(sourceSeed);
@@ -320,9 +320,9 @@ public class Graph<T> {
 				//returns.add(nodes.get(sourceSeed));
 				return returns;
 				
-					
-					
-	}
+
+		}
+		
 
 	public LinkedList<Node> A_Star(Node start, Node goal) {
 		PriorityQueue<APath> openSet = new PriorityQueue<APath>();
