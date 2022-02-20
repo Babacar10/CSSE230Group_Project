@@ -385,14 +385,19 @@ public class MapViewer extends JFrame {
 		    JLabel label1 = new JLabel("");
 		    label1.setText("<html>How many hours would you<br>       like to spend on the road?<br>(round trip)</html>");
 		    tripPanel.add(label1, BorderLayout.LINE_START);
+		    
+		    // FIXME: Where the trip planner path gets drawn. May need to add the origin or destination depending on what tripPlanner returns
 		    goTrip.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
 					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ Integer.parseInt(m_numberSpinner.getValue()+"") +" hours");
 //					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), Integer.parseInt(m_numberSpinner.getValue()+""));
-//					for (int i = 0; i < myNodes.size()-1; i ++) {
-//						drawConnectingLine(myNodes.get(i).teamName, myNodes.get(i+1).teamName);
-//					}
+					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), 1400);
+					System.out.println(myNodes.toString());
+					for (int i = 0; i < myNodes.size()-1; i ++) {
+						System.out.println(myNodes.get(i).teamName + ", " + myNodes.get(i+1).teamName);
+						drawConnectingLine(myNodes.get(i).teamName, myNodes.get(i+1).teamName);
+					}
 				}
 			});
 			this.add(tripPanel);
