@@ -487,15 +487,49 @@ public class MapViewer extends JFrame {
 					lines = new ArrayList<Line2D>();
 					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ Integer.parseInt(m_numberSpinner.getValue()+"") +" hours");
 //					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), Integer.parseInt(m_numberSpinner.getValue()+""));
-					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), 1400);
+					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), Integer.parseInt(m_numberSpinner.getValue()+"")*60);
 					String lastTeam = "";
 					System.out.println(myNodes.toString());
 					drawConnectingLine((String)tripPlannerDropdown.getSelectedItem(), myNodes.get(0).teamName);
+					int totalTime = 0;
+					int totalDistance = 0;
 					for (int i = 0; i < myNodes.size()-1; i ++) {
 						System.out.println(myNodes.get(i).teamName + ", " + myNodes.get(i+1).teamName);
 						drawConnectingLine(myNodes.get(i).teamName, myNodes.get(i+1).teamName);
 						lastTeam = myNodes.get(i+1).teamName;
+						ArrayList<Edge> edges = myNodes.get(i).edges;
+						for (Edge edge : edges) {
+							if (edge.node1 == myNodes.get(i) && edge.node2 == myNodes.get(i+1) || edge.node1 == myNodes.get(i+1) && edge.node2 == myNodes.get(i) ) {
+								totalDistance += edge.distanceCost;
+								totalTime += edge.timeCost;
+							}
+						}
 					}
+					ArrayList<String> showing = new ArrayList<String>();
+					
+					for (JCheckBox cbox : controlPanel.checkBoxes) {
+						if (cbox.isSelected()) {
+							showing.add(cbox.getActionCommand());
+						}
+					}
+					if (showing.contains("showTime" )) {
+						timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)*60+"min"));
+					}else {
+						timeTotal.setText(""); 
+					}
+					if (showing.contains("showDist")) {
+						distTotal.setText("Distance: " + totalDistance + " miles");
+					}else {
+						distTotal.setText("");
+					}
+					
+					System.out.println("TOTAL TIME: " + totalTime);
+					
+					
+
+
+
+					
 					drawConnectingLine(lastTeam, (String)tripPlannerDropdown.getSelectedItem());
 				}
 			});
