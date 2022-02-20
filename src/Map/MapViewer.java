@@ -26,12 +26,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -250,65 +252,156 @@ public class MapViewer extends JFrame {
 
 					if (teamList.containsKey(team1) && teamList.containsKey(team2) && team1 != team2) {
 					// FIXME: change from 0 to sortVal 
-					ArrayList<Node> shortestPath = graph.shortestPath(sortVal, teamList.get(team1), teamList.get(team2));
-					lines = new ArrayList<Line2D>();
-					int totalDistance = 0;
-					int totalSeed = 0;
-					int totalTime = 0;					
-					totalSeed += shortestPath.get(0).seed + teamList.get(team2);
-					ArrayList<Edge> lastEdges = shortestPath.get(0).edges;
-					for (Edge edge : lastEdges) {
-						if (edge.node1.seed == shortestPath.get(0).seed && edge.node2.seed == teamList.get(team2) || edge.node1.seed == teamList.get(team2) && edge.node2.seed == shortestPath.get(0).seed ) {
-							totalDistance += edge.distanceCost;
-							totalTime += edge.timeCost;							
-						}
-					}
-					for (int i  = 0; i < shortestPath.size()-1; i ++) {
-						drawConnectingLine(shortestPath.get(shortestPath.size()-i-1).teamName, shortestPath.get(shortestPath.size()-i-2).teamName);
-						totalSeed += shortestPath.get(shortestPath.size()-i-1).seed;
-						ArrayList<Edge> edges = shortestPath.get(shortestPath.size()-i-1).edges;
-						for (Edge edge : edges) {
-							if (edge.node1 == shortestPath.get(shortestPath.size()-i-1) && edge.node2 == shortestPath.get(shortestPath.size()-i-2) || edge.node1 == shortestPath.get(shortestPath.size()-i-2) && edge.node2 == shortestPath.get(shortestPath.size()-i-1) ) {
+					Hashtable<Integer, Node> nodes = graph.getNodes();
+					String selectedAlg = controlPanel.algGroup.getSelection().getActionCommand();
+					
+					
+					
+					
+					System.out.println(selectedAlg + " <--- ALG");
+					if (selectedAlg.equals("A")) {
+						LinkedList<Node> aStarPath = graph.A_Star(nodes.get(teamList.get(team1)), nodes.get(teamList.get(team2)));
+						
+						
+						lines = new ArrayList<Line2D>();
+						int totalDistance = 0;
+						int totalSeed = 0;
+						int totalTime = 0;					
+						totalSeed += aStarPath.get(0).seed + teamList.get(team2);
+						ArrayList<Edge> lastEdges = aStarPath.get(0).edges;
+						for (Edge edge : lastEdges) {
+							if (edge.node1.seed == aStarPath.get(0).seed && edge.node2.seed == teamList.get(team2) || edge.node1.seed == teamList.get(team2) && edge.node2.seed == aStarPath.get(0).seed ) {
 								totalDistance += edge.distanceCost;
-								totalTime += edge.timeCost;
+								totalTime += edge.timeCost;							
 							}
 						}
-						
-					}
-					
-					drawConnectingLine(shortestPath.get(0).teamName, team2);
-					
-					
-					ArrayList<String> showing = new ArrayList<String>();
-					
-					for (JCheckBox cbox : controlPanel.checkBoxes) {
-						if (cbox.isSelected()) {
-							showing.add(cbox.getActionCommand());
+						for (int i  = 0; i < aStarPath.size()-1; i ++) {							
+							drawConnectingLine(aStarPath.get(aStarPath.size()-i-1).teamName, aStarPath.get(aStarPath.size()-i-2).teamName);
+							totalSeed += aStarPath.get(aStarPath.size()-i-1).seed;
+							ArrayList<Edge> edges = aStarPath.get(aStarPath.size()-i-1).edges;
+							for (Edge edge : edges) {
+								if (edge.node1 == aStarPath.get(aStarPath.size()-i-1) && edge.node2 == aStarPath.get(aStarPath.size()-i-2) || edge.node1 == aStarPath.get(aStarPath.size()-i-2) && edge.node2 == aStarPath.get(aStarPath.size()-i-1) ) {
+									totalDistance += edge.distanceCost;
+									totalTime += edge.timeCost;
+								}
+							}
+							
 						}
-					}
-					if (showing.contains("showTime" )) {
-						timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)*60+"min"));
+						
+						drawConnectingLine(aStarPath.get(0).teamName, team2);
+						ArrayList<String> showing = new ArrayList<String>();
+						
+						for (JCheckBox cbox : controlPanel.checkBoxes) {
+							if (cbox.isSelected()) {
+								showing.add(cbox.getActionCommand());
+							}
+						}
+						if (showing.contains("showTime" )) {
+							timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)*60+"min"));
+						}else {
+							timeTotal.setText(""); 
+						}
+						if (showing.contains("showDist")) {
+							distTotal.setText("Distance: " + totalDistance + " miles");
+						}else {
+							distTotal.setText("");
+						}
+						if (showing.contains("showRank")) {
+							DecimalFormat df=new DecimalFormat("#.00");  
+							String rankFormatted = df.format((((double)totalSeed) / (double)(aStarPath.size()+1)));
+							seedAvg.setText("Avg Rank: "+ rankFormatted);
+						}else {
+							seedAvg.setText("");
+						}
+						
+						System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());
+						repaint();
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+					}else if (selectedAlg.equals("D")) {
+						
+						
+						
+						
+						ArrayList<Node> shortestPath = graph.shortestPath(sortVal, teamList.get(team1), teamList.get(team2));
+						lines = new ArrayList<Line2D>();
+						int totalDistance = 0;
+						int totalSeed = 0;
+						int totalTime = 0;					
+						totalSeed += shortestPath.get(0).seed + teamList.get(team2);
+						ArrayList<Edge> lastEdges = shortestPath.get(0).edges;
+						for (Edge edge : lastEdges) {
+							if (edge.node1.seed == shortestPath.get(0).seed && edge.node2.seed == teamList.get(team2) || edge.node1.seed == teamList.get(team2) && edge.node2.seed == shortestPath.get(0).seed ) {
+								totalDistance += edge.distanceCost;
+								totalTime += edge.timeCost;							
+							}
+						}
+						for (int i  = 0; i < shortestPath.size()-1; i ++) {							
+							drawConnectingLine(shortestPath.get(shortestPath.size()-i-1).teamName, shortestPath.get(shortestPath.size()-i-2).teamName);
+							totalSeed += shortestPath.get(shortestPath.size()-i-1).seed;
+							ArrayList<Edge> edges = shortestPath.get(shortestPath.size()-i-1).edges;
+							for (Edge edge : edges) {
+								if (edge.node1 == shortestPath.get(shortestPath.size()-i-1) && edge.node2 == shortestPath.get(shortestPath.size()-i-2) || edge.node1 == shortestPath.get(shortestPath.size()-i-2) && edge.node2 == shortestPath.get(shortestPath.size()-i-1) ) {
+									totalDistance += edge.distanceCost;
+									totalTime += edge.timeCost;
+								}
+							}
+							
+						}
+						
+						drawConnectingLine(shortestPath.get(0).teamName, team2);
+						ArrayList<String> showing = new ArrayList<String>();
+						
+						for (JCheckBox cbox : controlPanel.checkBoxes) {
+							if (cbox.isSelected()) {
+								showing.add(cbox.getActionCommand());
+							}
+						}
+						if (showing.contains("showTime" )) {
+							timeTotal.setText("Time: " + (totalTime) / 60 + "hr "+ (totalTime -  (totalTime / 60)*60+"min"));
+						}else {
+							timeTotal.setText(""); 
+						}
+						if (showing.contains("showDist")) {
+							distTotal.setText("Distance: " + totalDistance + " miles");
+						}else {
+							distTotal.setText("");
+						}
+						if (showing.contains("showRank")) {
+							DecimalFormat df=new DecimalFormat("#.00");  
+							String rankFormatted = df.format((((double)totalSeed) / (double)(shortestPath.size()+1)));
+							seedAvg.setText("Avg Rank: "+ rankFormatted);
+						}else {
+							seedAvg.setText("");
+						}
+						
+						System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());
+						repaint();
 					}else {
-						timeTotal.setText(""); 
+						System.out.println("Please pick two teams!");
 					}
-					if (showing.contains("showDist")) {
-						distTotal.setText("Distance: " + totalDistance + " miles");
-					}else {
-						distTotal.setText("");
-					}
-					if (showing.contains("showRank")) {
-						DecimalFormat df=new DecimalFormat("#.00");  
-						String rankFormatted = df.format((((double)totalSeed) / (double)(shortestPath.size()+1)));
-						seedAvg.setText("Avg Rank: "+ rankFormatted);
-					}else {
-						seedAvg.setText("");
 					}
 					
-					System.out.println(team1 + ": "+ teamList.get(team1) + " to " + team2 + ": " + teamList.get(team2) + ", sorted by: " + sortedBy + ", showing: " + showing.toString());
-					repaint();
-				}else {
-					System.out.println("Please pick two teams!");
-				}
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
 				}
 			});
 		}
@@ -335,6 +428,7 @@ public class MapViewer extends JFrame {
 	class ControlPanel extends JPanel {
 		
 		public ButtonGroup sortGroup;
+		public ButtonGroup algGroup;
 		public ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
 		
 		public ControlPanel() throws IOException {
@@ -390,14 +484,19 @@ public class MapViewer extends JFrame {
 		    goTrip.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
+					lines = new ArrayList<Line2D>();
 					System.out.println("Starting from: " + tripPlannerDropdown.getSelectedItem() + " spending "+ Integer.parseInt(m_numberSpinner.getValue()+"") +" hours");
 //					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), Integer.parseInt(m_numberSpinner.getValue()+""));
 					ArrayList<Node> myNodes = graph.tripPlanner(teamList.get(tripPlannerDropdown.getSelectedItem()), 1400);
+					String lastTeam = "";
 					System.out.println(myNodes.toString());
+					drawConnectingLine((String)tripPlannerDropdown.getSelectedItem(), myNodes.get(0).teamName);
 					for (int i = 0; i < myNodes.size()-1; i ++) {
 						System.out.println(myNodes.get(i).teamName + ", " + myNodes.get(i+1).teamName);
 						drawConnectingLine(myNodes.get(i).teamName, myNodes.get(i+1).teamName);
+						lastTeam = myNodes.get(i+1).teamName;
 					}
+					drawConnectingLine(lastTeam, (String)tripPlannerDropdown.getSelectedItem());
 				}
 			});
 			this.add(tripPanel);
@@ -416,10 +515,23 @@ public class MapViewer extends JFrame {
 			// Add dropdowns
 			
 			JPanel dropDownPanel = new JPanel();
+			this.algGroup = new ButtonGroup();
 			dropDownPanel.setLayout(new BorderLayout(5, 10));
 			JLabel gpsLabel = new JLabel("                                          GPS");
 			gpsLabel.setFont(new Font("Serif", Font.PLAIN, 14));
 			dropDownPanel.add(gpsLabel, BorderLayout.NORTH);
+			JPanel algPanel = new JPanel();
+			JRadioButton aStarButton = new JRadioButton("A*");
+			aStarButton.setActionCommand("A");
+			algPanel.add(aStarButton);
+			JRadioButton Dijkstra = new JRadioButton("Dijkstra's");
+			Dijkstra.setActionCommand("D");
+			Dijkstra.setSelected(true);
+			algPanel.add(Dijkstra);
+			algGroup.add(Dijkstra);
+			algGroup.add(aStarButton);
+			
+			dropDownPanel.add(algPanel, BorderLayout.SOUTH);
 			
 			teamListDropdown1 = new JComboBox(array);
 			teamListDropdown2 = new JComboBox(array);
