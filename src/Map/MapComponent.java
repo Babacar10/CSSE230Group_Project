@@ -72,7 +72,7 @@ public class MapComponent {
 		Graph graph = new Graph(); 
 		addAllNodes(graph);
 		addAllEdges(graph);
-		ArrayList<Graph.Node> cool = graph.tripPlanner(20, 1400);
+		ArrayList<Graph.Node> cool = graph.tripPlanner(26, 900);
 		System.out.print(cool.size() );
 		for(int i =0; i<cool.size();i++) {
 			Graph.Node hi = cool.get(i);

@@ -184,66 +184,147 @@ public class Graph<T> {
 	}
 	
 	public ArrayList<Node> tripPlanner(int sourceSeed, int timemax){
-		ArrayList<Node> returns = new ArrayList<Node>();
-		ArrayList<Node> used = new ArrayList<Node>();
-		Node Source = nodes.get(sourceSeed);
-		Random rand = new Random();
-		//rand.nextInt(bound);
-		int currentdist =0;
-		boolean foundpath = false;
-		Node traverse = Source;
-		while(!foundpath) {
-			used.add(traverse);
-			
-			//while(traverse!=Source) {
-//				for(int i=0; i<traverse.edges.size();i++ ){
-//					if(traverse.edges.get(i).node2.seed==sourceSeed ){
-//						if(timemax - (currentdist+traverse.edges.get(i).timeCost) < 100) {
-//							returns.add(traverse.edges.get(i).node2);
-//							foundpath=true;
-//							break;
-//						}
-//					}
-//				}
-				if(foundpath==false) {
-				int next = rand.nextInt(traverse.edges.size());
-				boolean notsame = false;
-				while(!notsame) {
-					for(int i=0; i<used.size();i++ ){
-					if(traverse.edges.get(next).node2.seed==used.get(i).seed ){
-						next = rand.nextInt(traverse.edges.size());
-						break;
-					} else {
-						notsame = true;
-						break;
-					}
-				}
-					
-				};
-				if (currentdist>timemax) {
-					foundpath=true;
-					break;
-				} 
-				returns.add(traverse.edges.get(next).node2);
-				currentdist+=(traverse.edges.get(next).timeCost);
-//				if(traverse.edges.get(next).node2==Source) {
-//					if (timemax-currentdist < 100) {
-//						foundpath=true;
+//		ArrayList<Node> returns = new ArrayList<Node>();
+//		ArrayList<Node> used = new ArrayList<Node>();
+//		Node Source = nodes.get(sourceSeed);
+//		Random rand = new Random();
+//		//rand.nextInt(bound);
+//		int currentdist =0;
+//		boolean foundpath = false;
+//		Node traverse = Source;
+//		while(!foundpath) {
+//			used.add(traverse);
+//			
+//			//while(traverse!=Source) {
+////				for(int i=0; i<traverse.edges.size();i++ ){
+////					if(traverse.edges.get(i).node2.seed==sourceSeed ){
+////						if(timemax - (currentdist+traverse.edges.get(i).timeCost) < 100) {
+////							returns.add(traverse.edges.get(i).node2);
+////							foundpath=true;
+////							break;
+////						}
+////					}
+////				}
+//				if(foundpath==false) {
+//				int next = rand.nextInt(traverse.edges.size());
+//				boolean notsame = false;
+//				while(!notsame) {
+//					for(int i=0; i<used.size();i++ ){
+//					if(traverse.edges.get(next).node2.seed==used.get(i).seed ){
+//						next = rand.nextInt(traverse.edges.size());
 //						break;
 //					} else {
-//						returns.clear();
-//						currentdist=0;
+//						notsame = true;
 //						break;
 //					}
 //				}
-				
-				traverse = traverse.edges.get(next).node2;
-				
+//					
+//				};
+//				if (currentdist>timemax) {
+//					foundpath=true;
+//					break;
+//				} 
+//				returns.add(traverse.edges.get(next).node2);
+//				currentdist+=(traverse.edges.get(next).timeCost);
+////				if(traverse.edges.get(next).node2==Source) {
+////					if (timemax-currentdist < 100) {
+////						foundpath=true;
+////						break;
+////					} else {
+////						returns.clear();
+////						currentdist=0;
+////						break;
+////					}
+////				}
+//				
+//				traverse = traverse.edges.get(next).node2;
+//				
+//				}
+//			//}
+//			
+//		}
+//		return returns;
+		// 0-distance 1-time 2-competitive 
+				// connects from target to source
+				ArrayList<Node> Visited = new ArrayList<Node>();
+				ArrayList<Node> UnVisited = new ArrayList<Node>(34);
+				int[] shortestDistance = new int[35];
+				int[] previousVertex = new int[35];
+				int[] edgeamount = new int[35];
+				int current = 1;
+				for(int i = 1; i<35;i++) {
+					Node next = nodes.get(i);
+					UnVisited.add(next);
+					shortestDistance[i] = Integer.MAX_VALUE;
+					previousVertex[i] = Integer.MAX_VALUE;
+					edgeamount[i]=1;
+					
 				}
-			//}
-			
-		}
-		return returns;
+				
+				shortestDistance[sourceSeed] = 0;
+				
+				
+				while(!UnVisited.isEmpty()) {
+					Node current_vertex = UnVisited.get(0);
+					for(int i = 0; i<UnVisited.size();i++) {
+						if(shortestDistance[UnVisited.get(i).seed]<shortestDistance[current_vertex.seed]) {
+							current_vertex = UnVisited.get(i);
+						}
+					}
+					
+					for(int i=0; i<current_vertex.edges.size(); i++) {
+						                 
+						int cost = Integer.MAX_VALUE;
+						Node other_vertex = current_vertex.edges.get(i).node2;
+						cost = current_vertex.edges.get(i).timeCost;
+						
+						//if(Cost != 2) {
+						if(shortestDistance[other_vertex.seed]>(shortestDistance[current_vertex.seed] + cost)) {
+							shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost);
+							previousVertex[other_vertex.seed] = current_vertex.seed;
+						} 
+						}
+						//}
+//						else {
+//							if(shortestDistance[other_vertex.seed] == Integer.MAX_VALUE) {
+//								shortestDistance[other_vertex.seed] =  cost;
+//								edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
+//								previousVertex[other_vertex.seed] = current_vertex.seed;
+//							}
+//							else if(shortestDistance[other_vertex.seed]<((shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1))) {
+//								edgeamount[other_vertex.seed]= edgeamount[current_vertex.seed]+1;
+//								shortestDistance[other_vertex.seed] = (shortestDistance[current_vertex.seed] + cost)/(edgeamount[current_vertex.seed]+1);
+//								previousVertex[other_vertex.seed] = current_vertex.seed;
+//							}
+//						}
+						UnVisited.remove(current_vertex);
+						Visited.add(current_vertex);
+						
+					}
+				ArrayList<Node> returns = new ArrayList<Node>();
+				ArrayList<Node> sort = new ArrayList<Node>();
+				for(int i =1; i<35; i++) {
+					
+					if(shortestDistance[i] >= timemax) sort.add(nodes.get(i));
+					
+				}
+				current = 1;
+				int currentdist = Integer.MAX_VALUE;
+				for(int i =0; i<sort.size();i++) {
+					if(shortestDistance[sort.get(i).seed]<currentdist) {
+						current = sort.get(i).seed;
+						currentdist = shortestDistance[sort.get(i).seed];
+					}
+				}
+				while(current!=sourceSeed) {
+					returns.add(nodes.get(previousVertex[current]));
+					current = previousVertex[current];
+				}
+				//returns.add(nodes.get(sourceSeed));
+				return returns;
+				
+					
+					
 	}
 
 	
